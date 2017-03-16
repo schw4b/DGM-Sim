@@ -1,0 +1,457 @@
+---
+title: "MDM-Simulations"
+author: "Simon Schwab"
+date: "6 March 2017"
+output: html_document
+---
+
+### Install R Markdown 
+```{r Install R Markdown}
+# install.packages("rmarkdown")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Install required packages 
+```{r install required packages}
+# install.packages("devtools")
+# install.packages("R.matlab")
+# install.packages("testit")
+# install.packages("RColorBrewer")
+# install.packages("cowplot")
+# install.packages("png")
+```
+
+### Load libraries 
+```{r Load required libraries, message=FALSE}
+library(R.matlab)
+library(testit)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+library(png)
+library(grid)
+```
+
+### Install and load multdyn 
+```{r Install multdyn, message=FALSE}
+# install_github("schw4b/multdyn", ref = "develop")
+# library(multdyn)
+
+# I'm using my local development branch
+library(devtools)
+load_all('~/workspace/multdyn')
+```
+
+### Main variables 
+```{r Main variables}
+N=50 # Number of simulated subjects/datasets
+Nn=5 # Number of nodes
+PATH_HOME = "/home/simon"
+PATH_PROJ = file.path(PATH_HOME, "Dropbox", "Data", "MDM-Sim")  # Project path
+PATH_FIG  = file.path(PATH_PROJ, 'figures') # path where figures will be stored
+PATH_DATA = file.path(PATH_PROJ, 'data') # path where time series data is stored
+```
+
+### Loading time series of Sim1 and Sim22 
+```{r Loading time series of Sim1 and Sim22}
+# Downloaded from http://www.fmrib.ox.ac.uk/datasets/netsim/
+S=200 # No of samples for Sim1 and Sim22
+
+d = readMat(file.path(PATH_DATA,'sim1.mat'))
+ts.sim1 = reshapeTs(d$ts,N,S)
+
+d = readMat(file.path(PATH_DATA,'sim22.mat'))
+ts.sim22 = reshapeTs(d$ts,N,S)
+```
+
+### Loading time series from 7 HRF intervention datasets 
+```{r Loading time series from 7 HRF intervention datasets}
+ts.int0 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1.mat'))$gfy2s
+ts.int1 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
+ts.int2 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16.mat'))$gfy2s
+ts.int3 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20.mat'))$gfy2s
+ts.int4 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24.mat'))$gfy2s
+ts.int5 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28.mat'))$gfy2s
+ts.int6 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$gfy2s
+```
+### Load time series data from single spike simulations 
+```{r Loame series data from single spike simulations}
+ts.ssint0 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj0_F1.mat"))$gfy2s
+ts.ssint1 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F13.mat"))$gfy2s
+ts.ssint2 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F16.mat"))$gfy2s
+ts.ssint3 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F20.mat"))$gfy2s
+ts.ssint4 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F24.mat"))$gfy2s
+ts.ssint5 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F28.mat"))$gfy2s
+ts.ssint6 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F32.mat"))$gfy2s
+```
+### Generate true network 
+```{r Generate true network}
+xtrue=array(NA,dim=c(5,5))
+xtrue[1,2] = xtrue[2,3] = xtrue[3,4] = xtrue[4,5] = xtrue[1,5] = 1
+```
+
+### Pearson's correlations of the nodes 
+```{r}
+R=array(NA,dim=c(9,Nn)) # Sim. dataset x nodes
+R[1,] = corTs(ts.sim1)[rmna(xtrue)==1]
+R[2,] = corTs(ts.sim22)[rmna(xtrue)==1]
+R[3,] = corTs(ts.int0)[rmna(xtrue)==1]
+R[4,] = corTs(ts.int1)[rmna(xtrue)==1]
+R[5,] = corTs(ts.int2)[rmna(xtrue)==1]
+R[6,] = corTs(ts.int3)[rmna(xtrue)==1]
+R[7,] = corTs(ts.int4)[rmna(xtrue)==1]
+R[8,] = corTs(ts.int5)[rmna(xtrue)==1]
+R[9,] = corTs(ts.int6)[rmna(xtrue)==1]
+
+idx = c(1,2,3,5,4) # move connection 1->5 to last column
+#print(R[,idx])
+```
+### Supplementary Table S1: Time to peak of single spikes 
+```{r Supplementary Table S1: Time to peak of single spikes}
+TR=0.1 # This data has a TR of 0.1
+STIM_ONSET=5 # 5 sec.
+
+table.S1=array(c(
+  rowMeans(apply(ts.ssint0, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint1, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint2, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint3, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint4, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint5, c(2,3), which.max) * TR - STIM_ONSET),
+  rowMeans(apply(ts.ssint6, c(2,3), which.max) * TR - STIM_ONSET)
+  ), dim=c(Nn, 7))
+
+table.S1sd=array(c(
+  apply(apply(ts.ssint0, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint1, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint2, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint3, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint4, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint5, c(2,3), which.max) * TR - STIM_ONSET, 1, sd),
+  apply(apply(ts.ssint6, c(2,3), which.max) * TR - STIM_ONSET, 1, sd)
+  ), dim=c(Nn, 7))
+
+# Mean time to peak
+print(array(as.numeric(sprintf("%.2f", table.S1)), dim=c(Nn, 7)))
+# SD
+print(array(as.numeric(sprintf("%.2f", table.S1sd)), dim=c(Nn, 7)))
+```
+
+### Loading MDM data from Sim1 and Sim22 
+```{r Loading MDM data from Sim1 and Sim22}
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'sim1'), sprintf("Id_%03d",s), Nn)
+}
+mdm.sim1=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'sim22'), sprintf("Id_%03d",s), Nn)
+}
+mdm.sim22=mdm.group(subj)
+```
+
+### Patel network analysis 
+```{r Patel network analysis}
+th=perm.test(ts.sim1) # get sign. thresholds
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = patel(scaleTs(ts.sim1[,,s]), TK = th$kappa, TT = th$tau) # scaling is not really necessary
+}
+patel.sim1=patel.group(subj)
+
+th=perm.test(ts.sim22) # get sign. thresholds
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = patel(scaleTs(ts.sim22[,,s]), TK = th$kappa, TT = th$tau) # scaling is not really necessary
+}
+patel.sim22=patel.group(subj)
+```
+
+### Stats for MDM and Patel with Sim1 and Sim22 
+```{r Stats for MDM and Patel with Sim1 and Sim22}
+stats.mdm.sim1  = binom.nettest(mdm.sim1$tam, alter = "greater", fdr = 0.05)
+stats.mdm.sim22 = binom.nettest(mdm.sim22$tam, alter = "greater", fdr = 0.05)
+# patel
+stats.pat.sim1  = binom.nettest(patel.sim1$net, alter = "greater", fdr = 0.05)
+stats.pat.sim22 = binom.nettest(patel.sim22$net, alter = "greater", fdr = 0.05)
+```
+
+### Sensitivity and specificity of MDM vs. Patel 
+```{r Sensitivity and specificity of MDM vs. Patel}
+perf.mdm=list()
+perf.pat=list()
+
+perf.mdm$sim1  = perf(mdm.sim1$tam, xtrue)
+perf.mdm$sim22 = perf(mdm.sim22$tam, xtrue)
+
+perf.pat$sim1  = perf(patel.sim1$net, xtrue)
+perf.pat$sim22 = perf(patel.sim22$net, xtrue)
+```
+
+### Plot: True network and correlation matrix 
+```{r, True network and correlation matrix, message=FALSE, warning=TRUE, fig.height=5.3, fig.width=6}
+
+img = readPNG(file.path(PATH_FIG, "fig-truenet-page001.png"))
+g = rasterGrob(img, interpolate=T)
+
+p1 = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12)) + ggtitle('Simulated 5-node network')
+
+p2 = gplotMat(rmna(xtrue), title='Adjacency matrix\nof 5-node network', hasColMap = F)
+p3 = gplotMat(rmdiag(corTs(ts.sim22)), title='Dynamic connections\n(Sim22, N=50)',
+              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+p4 = gplotMat(rmdiag(corTs(ts.sim1)), title='Static connections\n(Sim1, N=50)',
+              label=expression("Pearson\'s"~italic(r))) +  xlab("Node") + ylab("Node")
+
+top=plot_grid(p1, p2, labels=c("A", "B"), ncol = 2, nrow = 1, rel_widths = c(1, 0.65))
+bot=plot_grid(p3, p4, labels=c("C"), ncol = 2, nrow = 1, rel_widths = c(1, 1))
+
+plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.85))
+
+ggsave(path = PATH_FIG, "gfig-truenetAndCorr.png")
+```
+
+### Plot: HRF interventions 
+```{r Plot: HRF interventions, message=FALSE, warning=TRUE, fig.height=7.5, fig.width=6.5}
+s=1:15 # Selection of subjects
+ix=50:110 # start is set to stimulus onset at 5s
+l=length(s)*length(ix)
+int=as.factor(c(rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l), rep(7,l)))
+
+img = readPNG(file.path(PATH_FIG, "fig-interventions-page001.png"))
+g = rasterGrob(img, interpolate=T)
+pA = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12)) + ggtitle('HRF shape intervention')
+
+pB=gplotMat(R[,idx], lim = c(0.1, 0.5), label=expression("Pearson\'s"~italic(r)),
+         title = "Node-node correlations") +
+  xlab("Node pairs") + ylab("Dataset") + 
+  scale_x_discrete(limits=c("1\n2","2\n3","3\n4", "4\n5", "1\n5")) +
+  scale_y_discrete(limits=c("Sim1", "Sim22", "no int. 1", "interv. 2", "interv. 3",
+                            "interv. 4", "interv. 5", "interv. 6", "interv. 7"))
+
+n=1
+x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
+        ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
+        ts.ssint6[ix,n,s])
+x=melt(x)
+x$interv=int
+p1=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+  ggtitle('node 1') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,],
+                                                    color="gray60")
+
+n=2
+x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
+        ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
+        ts.ssint6[ix,n,s])
+x=melt(x)
+x$interv=int
+p2=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+  ggtitle('node 2') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+
+n=4
+x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
+        ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
+        ts.ssint6[ix,n,s])
+x=melt(x)
+x$interv=int
+p3=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+  ggtitle('node 4') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+
+n=5
+x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
+        ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
+        ts.ssint6[ix,n,s])
+x=melt(x)
+x$interv=int
+p4=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+  ggtitle('node 5') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+
+top=plot_grid(pA, pB, labels=c("A", "B"), ncol = 2, nrow = 1, rel_widths = c(0.8, 1))
+bot=plot_grid(p1, p2, p3, p4, labels=c("C"), ncol = 2, nrow = 2, rel_widths = c(1, 1))
+
+plot_grid(top, bot, ncol=1, nrow=2, rel_heights = c(1, 1.5))
+
+ggsave(path = PATH_FIG, "gfig-Intervention.png")
+
+```
+
+### Plot: MDM vs. Patel 
+```{r, Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+
+p1 = gplotMat(stats.mdm.sim1$adj, 'MDM', 'Propor')
+p2 = gplotMat(stats.pat.sim1$adj, 'Patel', 'Propor')
+
+d1 = data.frame(Percent = c(perf.mdm$sim1[,c(1,2)], perf.pat$sim1[,c(1,2)]),
+                Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
+                Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
+d1$gm = interaction(d1$Method, d1$Measure)
+p3 = ggplot(d1, aes(x=gm, y=Percent, fill=Method)) + geom_violin() + geom_boxplot(width=0.2) +
+  theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
+        #panel.background = element_rect(fill = "gray90"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dashed"),
+        panel.grid.major.x = element_blank()) +
+  scale_x_discrete(name ="Sensitivity  Specificity",
+                   breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
+                   labels=c("MDM", "MDM", "Pat", "Pat"))
+
+p4 = gplotMat(stats.mdm.sim22$adj, 'MDM', 'Propor')
+p5 = gplotMat(stats.pat.sim22$adj, 'Patel', 'Propor')
+
+# maybe use melt
+d22 = data.frame(Percent = c(perf.mdm$sim22[,c(1,2)], perf.pat$sim22[,c(1,2)]),
+                 Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
+                 Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
+d22$gm = interaction(d22$Method, d22$Measure)
+p6 = ggplot(d22, aes(x=gm, y=Percent, fill=Method)) + geom_violin() + geom_boxplot(width=0.2) +
+  theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
+        #panel.background = element_rect(fill = "gray90"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dashed"),
+        panel.grid.major.x = element_blank()) +
+  scale_x_discrete(name ="Sensitivity  Specificity",
+                   breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
+                   labels=c("MDM", "MDM", "Pat", "Pat"))
+
+top=plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "B", "C", "", "D"), ncol = 3, nrow = 2, rel_widths = c(1.1, 1.1, 1))
+
+p7=gplotMat(rmna(stats.mdm.sim1$adj_fdr), 'MDM', 'Propor', hasColMap = F)
+p8=gplotMat(rmna(stats.pat.sim1$adj_fdr), 'Patel', 'Propor', hasColMap = F)
+p9=gplotMat(rmna(stats.mdm.sim22$adj_fdr), 'MDM', 'Propor', hasColMap = F)
+p10=gplotMat(rmna(stats.pat.sim22$adj_fdr), 'Patel', 'Propor')
+
+bot=plot_grid(p7, p8, p9, p10, labels=c("E", "", "F", ""), ncol = 4, nrow = 1, rel_widths = c(0.6, 0.6, 0.6, 1))
+
+plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.53))
+
+ggsave(path = PATH_FIG, "gfig-MDMvsPatel.png")
+```
+
+
+
+### Loading MDM of 7 HRF datasets 
+```{r Loading MDM of 7 HRF datasets}
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int0=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int1=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int2=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int3=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int4=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int5=mdm.group(subj)
+
+subj=list()
+for (s in 1:N) {
+  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
+                           sprintf("Id_%03d",s), Nn)
+}
+mdm.int6=mdm.group(subj)
+```
+
+### Stats for MDM 7 HRF datasets 
+```{r Stats for MDM 7 HRF datasets}
+stats.mdm.int0 = binom.nettest(mdm.int0$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int1 = binom.nettest(mdm.int1$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int2 = binom.nettest(mdm.int2$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int3 = binom.nettest(mdm.int3$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int4 = binom.nettest(mdm.int4$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int5 = binom.nettest(mdm.int5$tam, alter = "greater", fdr = 0.05)
+stats.mdm.int6 = binom.nettest(mdm.int6$tam, alter = "greater", fdr = 0.05)
+```
+
+### Sensitivity and specificity of MDM in 7 HRF datasets 
+```{r Sensitivity and specificity of MDM in 7 HRF datasets}
+perf.mdm$int0 = perf(mdm.int0$tam, xtrue)
+perf.mdm$int1 = perf(mdm.int1$tam, xtrue)
+perf.mdm$int2 = perf(mdm.int2$tam, xtrue)
+perf.mdm$int3 = perf(mdm.int3$tam, xtrue)
+perf.mdm$int4 = perf(mdm.int4$tam, xtrue)
+perf.mdm$int5 = perf(mdm.int5$tam, xtrue)
+perf.mdm$int6 = perf(mdm.int6$tam, xtrue)
+```
+
+### Plot: MDM sensitivity and specificity for the 7 HRF datasets 
+```{r Plot: MDM sensitivity and specificity for the 7 HRF datasets, fig.height=2, fig.width=6}
+sel=1 # selection of perf measure, 1 sensitivity, 2 specificity
+myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel], 
+                             perf.mdm$int2[,sel], perf.mdm$int3[,sel],
+                             perf.mdm$int4[,sel], perf.mdm$int5[,sel],
+                             perf.mdm$int6[,sel]),
+                 Method = as.factor(c(rep("Int0", N), rep("Int1", N), rep("Int2", N),
+                            rep("Int3", N), rep("Int4", N), rep("Int5", N),
+                            rep("Int6", N))),
+                 Med = c(
+                   rep(median(perf.mdm$int0[,sel]), N), rep(median(perf.mdm$int1[,sel]), N),
+                   rep(median(perf.mdm$int2[,sel]), N), rep(median(perf.mdm$int3[,sel]), N),
+                   rep(median(perf.mdm$int4[,sel]), N), rep(median(perf.mdm$int5[,sel]), N),
+                   rep(median(perf.mdm$int6[,sel]), N)
+                   )
+                 )
+p1 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(width=0.2) +
+  geom_line(aes(x=as.numeric(Method), y=Med), size=0.3) + 
+  ggtitle('Sensitivity') + 
+  xlab("HRF shape intervention") +
+  theme(panel.grid.major = element_line(colour = "gray70", linetype = "dashed"),
+        panel.grid.major.x = element_blank(), axis.text = element_text(size=10))
+
+sel=2 # selection of perf measure, 1 sensitivity, 2 specificity
+myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel], 
+                             perf.mdm$int2[,sel], perf.mdm$int3[,sel],
+                             perf.mdm$int4[,sel], perf.mdm$int5[,sel],
+                             perf.mdm$int6[,sel]),
+                 Method = as.factor(c(rep("Int0", N), rep("Int1", N), rep("Int2", N),
+                            rep("Int3", N), rep("Int4", N), rep("Int5", N),
+                            rep("Int6", N))),
+                 Med = c(
+                   rep(median(perf.mdm$int0[,sel]), N), rep(median(perf.mdm$int1[,sel]), N),
+                   rep(median(perf.mdm$int2[,sel]), N), rep(median(perf.mdm$int3[,sel]), N),
+                   rep(median(perf.mdm$int4[,sel]), N), rep(median(perf.mdm$int5[,sel]), N),
+                   rep(median(perf.mdm$int6[,sel]), N)
+                   )
+                 )
+p2 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(width=0.2) +
+  geom_line(aes(x=as.numeric(Method), y=Med), size=0.3) + 
+  ggtitle('Specificity') + 
+  xlab("HRF shape intervention") +
+  theme(panel.grid.major = element_line(colour = "gray70", linetype = "dashed"),
+        panel.grid.major.x = element_blank(), axis.text = element_text(size=10))
+
+plot_grid(p1, p2, ncol=2, nrow=1)
+ggsave(path = PATH_FIG, "gfig-7IntSensSpec.png")
+```
+
