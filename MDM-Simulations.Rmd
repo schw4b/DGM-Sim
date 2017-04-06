@@ -202,7 +202,7 @@ apply(perf.pat$sim22[,c(1,2)], 2, median)
 ```
 
 ### Plot: True network and correlation matrix 
-```{r, True network and correlation matrix, message=FALSE, warning=TRUE, fig.height=6.5, fig.width=6}
+```{r True network and correlation matrix, message=FALSE, warning=TRUE, fig.height=6.5, fig.width=6}
 
 # computational complexity
 
@@ -300,7 +300,7 @@ ggsave(path = PATH_FIG, "gfig-Intervention.png")
 ```
 
 ### Plot: MDM vs. Patel 
-```{r, Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+```{r Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
 
 p1 = gplotMat(stats.mdm.sim1$adj, 'MDM', 'Propor')
 p2 = gplotMat(stats.pat.sim1$adj, 'Patel', 'Propor')
@@ -403,7 +403,7 @@ mdm.int6=mdm.group(subj)
 
 
 ### Investigate discount factor
-```{r, Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
 node=as.factor(c(rep(1,N),rep(2,N),rep(3,N),rep(4,N),rep(5,N)))
 d1=data.frame(df=c(mdm.sim1$df_),  node=node)
 d2=data.frame(df=c(mdm.sim22$df_), node=node)
@@ -428,6 +428,7 @@ p9 = ggplot(d9, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) + g
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3, nrow = 3)
 
 ```
+
 ### Stats for MDM 7 HRF datasets 
 ```{r Stats for MDM 7 HRF datasets}
 stats.mdm.int0 = binom.nettest(mdm.int0$tam, alter = "greater", fdr = 0.05)
@@ -451,7 +452,7 @@ perf.mdm$int6 = perf(mdm.int6$tam, xtrue)
 ```
 
 ### Plot: MDM sensitivity and specificity for the 7 HRF datasets 
-```{r Plot: MDM sensitivity and specificity for the 7 HRF datasets, fig.height=2, fig.width=6}
+```{r Plot: MDM sensitivity and specificity for the 7 HRF datasets, message=FALSE, warning=TRUE, fig.height=2, fig.width=6}
 sel=1 # selection of perf measure, 1 sensitivity, 2 specificity
 myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel], 
                              perf.mdm$int2[,sel], perf.mdm$int3[,sel],
