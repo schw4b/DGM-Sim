@@ -1,0 +1,108 @@
+---
+title: "MDM-Mouse"
+author: "Simon Schwab"
+date: "6 April 2017"
+output: html_document
+---
+
+### Install R Markdown 
+```{r Install R Markdown}
+# install.packages("rmarkdown")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Install required packages 
+```{r install required packages}
+# install.packages("devtools")
+# install.packages("testit")
+# install.packages("ggplot2")
+# install.packages("cowplot")
+# install.packages("reshape2")
+```
+
+### Load libraries 
+```{r Load required libraries, message=FALSE}
+library(devtools)
+library(testit)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+```
+
+### Install and load multdyn 
+```{r Install multdyn, message=FALSE}
+# install_github("schw4b/multdyn", ref = "develop")
+# library(multdyn)
+
+# I'm using my local development branch
+load_all('~/workspace/multdyn')
+```
+
+### Main variables 
+```{r Main variables}
+N=16 # Number of simulated subjects/datasets
+Nn=14 # Number of nodes
+PATH_HOME = "/home/simon"
+PATH = file.path(PATH_HOME, 'workspace', 'MDM-nbooks') # path where figures will be stored
+PATH_DATA = file.path(PATH_HOME, "Drive", "Mouse")
+```
+
+### Loading network data
+```{r Loading network data}
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_DATA, 'Mouse_14ROIs_CP_results'), sprintf("Mouse_%03d",s), 14)
+# }
+# mdm.mouse14=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:8) {
+#   subj[[s]] = read.subject(file.path(PATH_DATA, 'Mouse_N816ROIs_results'), sprintf("Mouse_%03d",s), 16)
+# }
+# mdm.mouse16=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_DATA, 'Net1_WT_results'), sprintf("Mouse_%03d",s), 8)
+# }
+# mdm.net1wt=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_DATA, 'Net2_WT_results'), sprintf("Mouse_%03d",s), 6)
+# }
+# mdm.net2wt=mdm.group(subj)
+
+# takes quite long to load above data
+#setwd(PATH)
+#save(mdm.mouse14, mdm.mouse16, mdm.net1wt, mdm.net2wt, file = "mdm-mouse.RData")
+
+load(file.path(PATH,"mdm-mouse.RData"))
+
+```
+
+### Plot: discount factor delta distribution per node
+```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+
+node=as.factor(sort(rep(1:14,N)))
+d1=data.frame(df=c(mdm.mouse14$df_), node=node)
+
+node=as.factor(sort(rep(1:16,8)))
+d2=data.frame(df=c(mdm.mouse16$df_), node=node)
+
+node=as.factor(sort(rep(1:8,N)))
+d3=data.frame(df=c(mdm.net1wt$df_),  node=node)
+
+node=as.factor(sort(rep(1:6,16)))
+d4=data.frame(df=c(mdm.net2wt$df_),  node=node)
+
+p1 = ggplot(d1, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) + ggtitle("Mouse 14 ROIs (N=16)")
+p2 = ggplot(d2, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) + ggtitle("Mouse 16 ROIs (N=8)")
+p3 = ggplot(d3, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) + ggtitle("Net1_WT (N=16)")
+p4 = ggplot(d4, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) + ggtitle("Net2_WT (N=16)")
+
+plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
+```
