@@ -44,7 +44,10 @@ load_all('~/workspace/multdyn')
 ### Main variables 
 ```{r Main variables}
 N=16 # Number of simulated subjects/datasets
-Nn=14 # Number of nodes
+Nn=14 # Number of nodes, does not apply to all datasets
+Nn1=8
+Nn2=6
+N_t= 2000 # Volumes/no. of timepoints
 PATH_HOME = "/home/simon"
 PATH = file.path(PATH_HOME, 'workspace', 'MDM-nbooks') # path where figures will be stored
 PATH_DATA = file.path(PATH_HOME, "Drive", "Mouse")
@@ -110,3 +113,104 @@ p4 = ggplot(d4, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) +
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
+
+### Correlation plot
+```{r Correlation plot, fig.height=4, fig.width=5.8}
+f14 = list.files(file.path(PATH_DATA, "Timeseries_14ROIs_CP"), "*.txt")
+f16 = list.files(file.path(PATH_DATA, "WT_fmr1ko_120d_dr_stage1"), "*.txt")
+f1  = list.files(file.path(PATH_DATA, "Net1_WT"), "*.txt")
+f2  = list.files(file.path(PATH_DATA, "Net2_WT"), "*.txt")
+assert(length(f14) == N)
+assert(length(f16) == 8)
+assert(length(f1)  == N)
+assert(length(f2)  == N)
+
+# read data
+d14 = array(NA, dim=c(N_t, Nn, N))
+d16 = array(NA, dim=c(N_t, 16, 8))
+d1  = array(NA, dim=c(N_t, Nn1, N))
+d2  = array(NA, dim=c(N_t, Nn2, N))
+for (s in 1:N) {
+  d14[,,s]= scaleTs(as.matrix(read.table(file.path(PATH_DATA, "Timeseries_14ROIs_CP", f14[s]))))
+  if (s <=8) {
+    d16[,,s]= scaleTs(as.matrix(read.table(file.path(PATH_DATA, "WT_fmr1ko_120d_dr_stage1", f16[s]))))
+  }
+  d1[,,s] = scaleTs(as.matrix(read.table(file.path(PATH_DATA, "Net1_WT", f1[s]))))
+  d2[,,s] = scaleTs(as.matrix(read.table(file.path(PATH_DATA, "Net2_WT", f2[s]))))
+  #d=scaleTs(d)
+  assert(nrow(d14) == N_t)
+  assert(nrow(d16) == N_t)
+  assert(nrow(d1) == N_t)
+  assert(nrow(d2) == N_t)
+  assert(ncol(d14) == Nn)
+  assert(ncol(d16) == 16)
+  assert(ncol(d1) == Nn1)
+  assert(ncol(d2) == Nn2)
+}
+
+p1 = gplotMat(rmdiag(corTs(d14)), title='14 ROIs (N=16)', lim=c(0, 1),
+              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+p2 = gplotMat(rmdiag(corTs(d16)), title='16 ROIs (N=8)', lim=c(-0.4, 0.6),
+              label=expression("Pearson\'s"~italic(r)), gradient = c("blue", "white", "red")) + xlab("Node") + ylab("Node")
+p3 = gplotMat(rmdiag(corTs(d1)), title='Net1_WT (N=16)', lim=c(0, 0.5),
+              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+p4 = gplotMat(rmdiag(corTs(d2)), title='Net2_WT (N=16)', lim=c(0, 0.5),
+              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+
+plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+
+```
+
+### Plot random timeseries
+```{r Plot random timeseries, fig.height=8, fig.width=10}
+t = 1:200 # interval to plot
+
+# random sampling mice m and nodes n
+nodes = 5 # no. of nodes to plot
+
+d = melt(d14[t,sample(14,nodes),sample(N,1)])
+p1=ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() + theme_minimal() + 
+  ggtitle("Mouse 14 ROIs")
+
+d = melt(d16[t,sample(16,nodes),sample(8,1)])
+p2=ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() + theme_minimal() + ggtitle("Mouse 16 ROIs")
+
+d = melt(d1[t,sample(8,nodes),sample(N,1)])
+p3=ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() + theme_minimal() + ggtitle("Net1_WT")
+
+d = melt(d2[t,sample(6,nodes),sample(N,1)])
+p4=ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() + theme_minimal() + ggtitle("Net2_WT")
+
+plot_grid(p1, p2, p3, p4, ncol = 1, nrow = 4, rel_widths = c(1, 1))
+
+```
+
+### Network consistency across mice
+
+```{r, Network consistency across mice, , fig.height=8, fig.width=5.2}
+
+stats1 = binom.nettest(mdm.mouse14$am)
+stats2 = binom.nettest(mdm.mouse16$am)
+stats3 = binom.nettest(mdm.net1wt$am)
+stats4 = binom.nettest(mdm.net2wt$am)
+
+p1 = gplotMat(stats1$adj) + ggtitle("Mouse 14 ROIs")
+p2 = gplotMat(rmna(stats1$adj_fdr)) + ggtitle("binom test & FDR")
+
+p3 = gplotMat(stats2$adj) + ggtitle("Mouse 16 ROIs")
+p4 = gplotMat(rmna(stats2$adj_fdr)) + ggtitle("binom test & FDR")
+
+p5 = gplotMat(stats3$adj) + ggtitle("Net1_WT")
+p6 = gplotMat(rmna(stats3$adj_fdr)) + ggtitle("binom test & FDR")
+
+p7 = gplotMat(stats4$adj) + ggtitle("Net2_WT")
+p8 = gplotMat(rmna(stats4$adj_fdr))  + ggtitle("binom test & FDR")
+
+
+plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4)
+
+```
+
+
+
+
