@@ -187,7 +187,7 @@ plot_grid(p1, p2, p3, p4, ncol = 1, nrow = 4, rel_widths = c(1, 1))
 
 ### Network consistency across mice
 
-```{r, Network consistency across mice, , fig.height=8, fig.width=5.2}
+```{r, Network consistency across mice, fig.height=8, fig.width=5.2}
 
 stats1 = binom.nettest(mdm.mouse14$am)
 stats2 = binom.nettest(mdm.mouse16$am)
