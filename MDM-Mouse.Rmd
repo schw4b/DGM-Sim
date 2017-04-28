@@ -149,13 +149,13 @@ for (s in 1:N) {
 }
 
 p1 = gplotMat(rmdiag(corTs(d14)), title='14 ROIs (N=16)', lim=c(0, 1),
-              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 p2 = gplotMat(rmdiag(corTs(d16)), title='16 ROIs (N=8)', lim=c(-0.4, 0.6),
-              label=expression("Pearson\'s"~italic(r)), gradient = c("blue", "white", "red")) + xlab("Node") + ylab("Node")
+              colMapLabel=expression("Pearson\'s"~italic(r)), gradient = c("blue", "white", "red")) + xlab("Node") + ylab("Node")
 p3 = gplotMat(rmdiag(corTs(d1)), title='Net1_WT (N=16)', lim=c(0, 0.5),
-              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 p4 = gplotMat(rmdiag(corTs(d2)), title='Net2_WT (N=16)', lim=c(0, 0.5),
-              label=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_widths = c(1, 1))
 
@@ -194,20 +194,21 @@ stats2 = binom.nettest(mdm.mouse16$am)
 stats3 = binom.nettest(mdm.net1wt$am)
 stats4 = binom.nettest(mdm.net2wt$am)
 
-p1 = gplotMat(stats1$adj) + ggtitle("Mouse 14 ROIs")
-p2 = gplotMat(rmna(stats1$adj_fdr)) + ggtitle("binom test & FDR")
+p1 = gplotMat(stats1$adj, title = "Mouse 14 ROIs")
+p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR")
 
-p3 = gplotMat(stats2$adj) + ggtitle("Mouse 16 ROIs")
-p4 = gplotMat(rmna(stats2$adj_fdr)) + ggtitle("binom test & FDR")
+p3 = gplotMat(stats2$adj, title = "Mouse 16 ROIs")
+p4 = gplotMat(rmna(stats2$adj_fdr), title = "binom test & FDR")
 
-p5 = gplotMat(stats3$adj) + ggtitle("Net1_WT")
-p6 = gplotMat(rmna(stats3$adj_fdr)) + ggtitle("binom test & FDR")
+mylabels = c("OrbM", "OrbL", "NAcc", "Cing",  "Amyg", "CA1", "DG", "Entorh")
+p5 = gplotMat(stats3$adj, title = "Net1_WT", labels=mylabels, axisTextSize=8, xAngle=90)
+p6 = gplotMat(rmna(stats3$adj_fdr), title = "binom test & FDR", labels=mylabels, axisTextSize=8, xAngle=90)
 
-p7 = gplotMat(stats4$adj) + ggtitle("Net2_WT")
-p8 = gplotMat(rmna(stats4$adj_fdr))  + ggtitle("binom test & FDR")
+mylabels = c("SomSensR", "MotorR", "PutamR", "SomSensL", "MotorL", "PutamL")
+p7 = gplotMat(stats4$adj, title = "Net2_WT", labels=mylabels, axisTextSize=8, xAngle=90)
+p8 = gplotMat(rmna(stats4$adj_fdr), title = "binom test & FDR", labels=mylabels, axisTextSize=8, xAngle=90)
 
-
-plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4)
+plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
 
 ```
 
