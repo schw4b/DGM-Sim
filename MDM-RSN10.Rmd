@@ -21,6 +21,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("ggplot2")
 # install.packages("cowplot")
 # install.packages("reshape2")
+# install.packages("data.table")
+# install.packages("testthat")
 ```
 
 ## Load libraries 
@@ -30,6 +32,8 @@ library(testit)
 library(ggplot2)
 library(cowplot)
 library(reshape2)
+library(data.table)
+library(testthat)
 ```
 
 ## Install and load multdyn 
@@ -45,9 +49,10 @@ load_all('~/workspace/multdyn')
 ## Main variables 
 ```{r Main variables}
 PATH_HOME = "/home/simon"
-PATH_NET = file.path(PATH_HOME, 'Drive', 'MDM_NetMats10_results')
-PATH_TS  = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
-PATH  = file.path(PATH_HOME, 'workspace', 'MDM-nbooks')
+PATH_NET  = file.path(PATH_HOME, 'Drive', 'MDM_NetMats10_results')
+PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
+PATH      = file.path(PATH_HOME, 'workspace', 'MDM-nbooks')
+PATH_DATA = file.path(PATH, 'data')
 
 N      = 320
 N_comp = 10 # RSNs
@@ -55,10 +60,12 @@ N_t    = 1200 # Volumes
 N_runs = 4
 INFO   = 'NetMats10'
 SUBJECTS = as.matrix(read.table(file.path(PATH_TS, 'subjectIDs.txt')))
-COMP    = sort(c(3,1,4,2,18,14,19,21,5,10))
 TR=0.72
-labels = read.table(file.path(PATH, 'Net10Labels.txt'), header = T)
+labels = read.table(file.path(PATH_DATA, 'Net10Labels.txt'), header = T)
 labels = labels[order(labels$NoNetMats25),]
+COMP=labels$NoNetMats25
+
+print(labels)
 ```
 
 ## Loading network data
@@ -84,7 +91,7 @@ labels = labels[order(labels$NoNetMats25),]
 # f=file(file.path(PATH,"net10.RData"))
 # save(mdm.net10.r1, mdm.net10.r2, mdm.net10.r3, mdm.net10.r4, file = f)
 # close(f)
-load(file.path(PATH, "net10.RData"))
+load(file.path(PATH_DATA, "net10.RData"))
 ```
 
 ## Plot: discount factor delta distribution per node
@@ -133,7 +140,7 @@ plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
 # f=file(file.path(PATH,"ts10.RData"))
 # save(ts, file = f)
 # close(f)
-load(file.path(PATH, "ts10.RData"))
+load(file.path(PATH_DATA, "ts10.RData"))
 ```
 
 ## Correlation Plots
@@ -206,8 +213,9 @@ p8 = gplotMat(rmna(stats.r4$adj_fdr), title = "binom test & FDR",
 
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
 ```
+
 ## Networks consistency across runs
-```{r Networks consistency across runs, fig.height=10, fig.width=6.2}
+```{r Networks consistency across runs, fig.height=7.5, fig.width=6.2}
 # edge reproduced in 3 runs or more
 m3 = mdm.net10.r1$am + mdm.net10.r2$am + mdm.net10.r3$am + mdm.net10.r4$am > 2
 # edge reproduced in all runs
@@ -231,13 +239,12 @@ p4 = gplotMat(rmna(stats.m4$adj_fdr), title = "binom test & FDR",
               nodeLabels=labels$Label, axisTextSize=8, xAngle=90, lim = c(0,0.5))
 
 p5 = gplotMat(rmdiag(stats.mn$adj), title = "no edge in 4/4 runs", nodeLabels=labels$Label,
+              gradient = c("white", "violet", "blue"),
               axisTextSize=8, xAngle=90)
 p6 = gplotMat(rmdiag(rmna(stats.mn$adj_fdr)), title = "binom test & FDR",
+              gradient = c("white", "violet", "blue"),
               nodeLabels=labels$Label, axisTextSize=8, xAngle=90)
 
-plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
+plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
-
-
-
 
