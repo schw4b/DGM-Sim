@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 #$ -S /usr/bin/Rscript
-#$ -l h_vmem=256M
+#$ -l h_vmem=512M
 #$ -l h_rt=00:03:30
 #$ -t 12801:16800
 #$ -cwd
@@ -12,6 +12,7 @@
 #system("module load gcc")
 library(multdyn)
 library(testit)
+library(data.table)
 
 PATH        = '~/Drive/HCP900_Parcellation_Timeseries_Netmats_ICAd25/'
 PATHDATA    = '~/Drive/HCP900_Parcellation_Timeseries_Netmats_ICAd25/node_timeseries/3T_HCP820_MSMAll_d25_ts2/'
