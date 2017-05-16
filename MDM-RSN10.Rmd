@@ -207,11 +207,35 @@ p8 = gplotMat(rmna(stats.r4$adj_fdr), title = "binom test & FDR",
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
 ```
 ## Networks consistency across runs
+```{r Networks consistency across runs, fig.height=10, fig.width=6.2}
+# edge reproduced in 3 runs or more
+m3 = mdm.net10.r1$am + mdm.net10.r2$am + mdm.net10.r3$am + mdm.net10.r4$am > 2
+# edge reproduced in all runs
+m4 = mdm.net10.r1$am * mdm.net10.r2$am * mdm.net10.r3$am * mdm.net10.r4$am
+# consistently no edge in all runs
+mn = (1-mdm.net10.r1$am) * (1-mdm.net10.r2$am) * (1-mdm.net10.r3$am) * (1-mdm.net10.r4$am)
 
-```{r Networks consistency across runs}
-m4 = array(NA, dim=c(N_comp,N_comp,N))
-m3 = array(NA, dim=c(N_comp,N_comp,N))
 
+stats.m3 = binom.nettest(m3, alter = "greater")
+stats.m4 = binom.nettest(m4, alter = "greater")
+stats.mn = binom.nettest(mn, alter = "greater")
+
+p1 = gplotMat(stats.m3$adj, title = "edge in 3/4 runs", nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90)
+p2 = gplotMat(rmna(stats.m3$adj_fdr), title = "binom test & FDR",
+              nodeLabels=labels$Label, axisTextSize=8, xAngle=90)
+
+p3 = gplotMat(stats.m4$adj, title = "edge in 4/4 runs", nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = c(0, 0.5))
+p4 = gplotMat(rmna(stats.m4$adj_fdr), title = "binom test & FDR",
+              nodeLabels=labels$Label, axisTextSize=8, xAngle=90, lim = c(0,0.5))
+
+p5 = gplotMat(rmdiag(stats.mn$adj), title = "no edge in 4/4 runs", nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90)
+p6 = gplotMat(rmdiag(rmna(stats.mn$adj_fdr)), title = "binom test & FDR",
+              nodeLabels=labels$Label, axisTextSize=8, xAngle=90)
+
+plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
 ```
 
 
