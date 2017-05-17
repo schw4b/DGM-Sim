@@ -129,6 +129,54 @@ for (s in 1:N) {
 }
 ```
 
+## MDM network estimation Session 4
+```{r MDM network estimation Session 4}
+f1 = list.files(file.path(PATH_DATA, "vt_All_Motor_L.dr"), '*.txt')
+f2 = list.files(file.path(PATH_DATA, "vt_All_Visual_Bi.dr"), '*.txt')
+assert(length(f1) == N)
+assert(length(f2) == N)
+
+d.s4=array(NA, dim=c(Nt,Nn,N))
+# read data
+for (s in 1:N) {
+  d1 = as.matrix(read.table(file.path(PATH_DATA, "vt_All_Motor_L.dr", f1[s])))
+  d2 = as.matrix(read.table(file.path(PATH_DATA, "vt_All_Visual_Bi.dr", f2[s])))
+  d = cbind(d1,d2)
+  assert(ncol(d) == Nn)
+  assert(nrow(d) == Nt)
+
+  d.s4[,,s]=scaleTs(d)
+
+  # calculate networks, will write txt files
+  # s=subject(scaleTs(d), id=sprintf("Session4_%03d_%s", s, INFO),
+  #           path = file.path(PATH_RESULTS, "MDM_VisMotor_S4"))
+}
+```
+
+## MDM network estimation Session 5
+```{r MDM network estimation Session 5}
+f1 = list.files(file.path(PATH_DATA, "vtbw_All_Motor_L.dr"), '*.txt')
+f2 = list.files(file.path(PATH_DATA, "vtbw_All_Visual_Bi.dr"), '*.txt')
+assert(length(f1) == N)
+assert(length(f2) == N)
+
+d.s5=array(NA, dim=c(Nt,Nn,N))
+# read data
+for (s in 1:N) {
+  d1 = as.matrix(read.table(file.path(PATH_DATA, "vtbw_All_Motor_L.dr", f1[s])))
+  d2 = as.matrix(read.table(file.path(PATH_DATA, "vtbw_All_Visual_Bi.dr", f2[s])))
+  d = cbind(d1,d2)
+  assert(ncol(d) == Nn)
+  assert(nrow(d) == Nt)
+
+  d.s5[,,s]=scaleTs(d)
+
+  # calculate networks, will write txt files
+  # s=subject(scaleTs(d), id=sprintf("Session5_%03d_%s", s, INFO),
+  #           path = file.path(PATH_RESULTS, "MDM_VisMotor_S5"))
+}
+```
+
 ## Loading network data
 ```{r Loading network data}
 # subj=list()
@@ -151,10 +199,25 @@ for (s in 1:N) {
 #                            id = sprintf("Session3_%03d",s), nodes=Nn)
 # }
 # mdm.s3=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S4'),
+#                            id = sprintf("Session4_%03d",s), nodes=Nn)
+# }
+# mdm.s4=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S5'),
+#                            id = sprintf("Session5_%03d",s), nodes=Nn)
+# }
+# mdm.s5=mdm.group(subj)
+# 
+# save(mdm.s1, mdm.s2, mdm.s3, mdm.s4, mdm.s5, 
+#      file = file.path(PATH, "data", "vismotor.RData"))
 
-#save(mdm.s1, mdm.s2, mdm.s3, file = file.path(PATH, "data"", "vismotor.RData"))
 load(file.path(PATH, "data", "vismotor.RData"))
-
 ```
 
 ## Plot: discount factor delta distribution per node
@@ -164,8 +227,6 @@ p1 = ggplot(melt(mdm.s1$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() +
   geom_boxplot(width=0.2) + ggtitle("rest") + ylab("df") + xlab("node") +
   geom_point(shape=1, color="gray50", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
-
-#boxplot(mdm.s1$df_[,1])
   
 p2 = ggplot(melt(mdm.s2$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
   geom_boxplot(width=0.2) + ggtitle("motor") + ylab("df") + xlab("node") +
@@ -177,26 +238,48 @@ p3 = ggplot(melt(mdm.s3$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() +
   geom_point(shape=1, color="gray50", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
-plot_grid(p1, p2, p3, ncol = 2, nrow = 2)
+p4 = ggplot(melt(mdm.s4$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.2) + ggtitle("motor/visual") + ylab("df") + xlab("node") +
+  geom_point(shape=1, color="gray50", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+p5 = ggplot(melt(mdm.s5$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.2) + ggtitle("motor/visual II") + ylab("df") + xlab("node") +
+  geom_point(shape=1, color="gray50", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3)
 ```
 
 ## Correlation plot
-```{r Correlation plot, fig.height=4, fig.width=6.2}
+```{r Correlation plot, fig.height=7, fig.width=6.5}
 mylim = c(-0.8, 0.8)
 p1 = gplotMat(rmdiag(corTs(d.s1)), title='rest', lim=mylim,
               gradient = c("blue", "white", "red"),
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90,
               colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 
 p2 = gplotMat(rmdiag(corTs(d.s2)), title='motor', lim=mylim,
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90,
               gradient = c("blue", "white", "red"),
               colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 
 p3 = gplotMat(rmdiag(corTs(d.s3)), title='visual', lim=mylim,
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90,
               gradient = c("blue", "white", "red"),
               colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 
-plot_grid(p1, p2, p3, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+p4 = gplotMat(rmdiag(corTs(d.s4)), title='motor/visual', lim=mylim,
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90,
+              gradient = c("blue", "white", "red"),
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
 
+p5 = gplotMat(rmdiag(corTs(d.s5)), title='motor/visual II', lim=mylim,
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90,
+              gradient = c("blue", "white", "red"),
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+
+plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3, rel_widths = c(1, 1))
 ```
 
 ## Plot random timeseries
@@ -218,15 +301,25 @@ d = melt(d.s3[t,sample(Nn,nodes),sample(N,1)])
 p3 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual")
 
-plot_grid(p1, p2, p3, ncol = 1, nrow = 3, rel_widths = c(1, 1))
+d = melt(d.s3[t,sample(Nn,nodes),sample(N,1)])
+p4 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual")
+
+d = melt(d.s3[t,sample(Nn,nodes),sample(N,1)])
+p5 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual")
+
+plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
 ## Network consistency across subjects
-```{r, Network consistency across subjects, fig.height=7, fig.width=6}
+```{r, Network consistency across subjects, fig.height=12, fig.width=6}
 
 stats1 = binom.nettest(mdm.s1$am)
 stats2 = binom.nettest(mdm.s2$am)
 stats3 = binom.nettest(mdm.s3$am)
+stats4 = binom.nettest(mdm.s4$am)
+stats5 = binom.nettest(mdm.s5$am)
 
 p1 = gplotMat(stats1$adj, title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR",
@@ -240,7 +333,15 @@ p5 = gplotMat(stats3$adj, title = "visual", nodeLabels = mylabels, axisTextSize=
 p6 = gplotMat(rmna(stats3$adj_fdr), title = "binom test & FDR",
               nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
-plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
+p7 = gplotMat(stats4$adj, title = "motor/visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p8 = gplotMat(rmna(stats4$adj_fdr), title = "binom test & FDR",
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+
+p9 = gplotMat(stats5$adj, title = "motor/visual II", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p10= gplotMat(rmna(stats5$adj_fdr), title = "binom test & FDR",
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+
+plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, ncol = 2, nrow = 5, rel_heights = c(1,1,1))
 
 ```
 
