@@ -315,11 +315,11 @@ plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ## Network consistency across subjects
 ```{r, Network consistency across subjects, fig.height=12, fig.width=6}
 
-stats1 = binom.nettest(mdm.s1$am)
-stats2 = binom.nettest(mdm.s2$am)
-stats3 = binom.nettest(mdm.s3$am)
-stats4 = binom.nettest(mdm.s4$am)
-stats5 = binom.nettest(mdm.s5$am)
+stats1 = binom.nettest(mdm.s1$am, alter = "greater")
+stats2 = binom.nettest(mdm.s2$am, alter = "greater")
+stats3 = binom.nettest(mdm.s3$am, alter = "greater")
+stats4 = binom.nettest(mdm.s4$am, alter = "greater")
+stats5 = binom.nettest(mdm.s5$am, alter = "greater")
 
 p1 = gplotMat(stats1$adj, title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR",
