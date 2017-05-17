@@ -1,0 +1,249 @@
+---
+title: "MDM-VisMotor"
+author: "Simon Schwab"
+date: "17 May 2017"
+output: html_document
+---
+
+## Install R Markdown 
+```{r Install R Markdown}
+# install.packages("rmarkdown")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install required packages 
+```{r install required packages}
+# install.packages("devtools")
+# install.packages("testit")
+# install.packages("ggplot2")
+# install.packages("cowplot")
+# install.packages("reshape2")
+```
+
+## Load libraries 
+```{r Load required libraries, message=FALSE}
+library(devtools)
+library(testit)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+```
+
+## Install and load multdyn 
+```{r Install multdyn, message=FALSE}
+# install_github("schw4b/multdyn", ref = "develop")
+# library(multdyn)
+
+# I'm using my local development branch
+load_all('~/workspace/multdyn')
+```
+
+## Main variables 
+```{r Main variables}
+N=15 # Number subjects
+Nn=10 # Number of nodes, does not apply to all datasets
+Nn_vis=6 # Number of visual nodes
+Nn_mot=4 # Number of motor nodes
+Nt= 230 # Volumes/no. of timepoints
+PATH_HOME = "/home/simon"
+PATH = file.path(PATH_HOME, 'workspace', 'MDM-nbooks') # path where figures will be stored
+PATH_DATA = file.path(PATH_HOME, "Drive", "VisMotor", "TamarEugene")
+PATH_RESULTS = file.path(PATH_HOME, "Drive", "VisMotor")
+INFO="VisMotor"
+mylabels = c("CB", "Putam", "PrimSens", "SMA",  "OccPole", "Ling", "InfLat", "PostLat",
+             "OccFusif", "TempFusif")
+```
+
+## MDM network estimation Session 1
+```{r MDM network estimation Session 1}
+f1 = list.files(file.path(PATH_DATA, "r_All_Motor_L.dr"), '*.txt')
+f2 = list.files(file.path(PATH_DATA, "r_All_Visual_Bi.dr"), '*.txt')
+assert(length(f1) == N)
+assert(length(f2) == N)
+
+d.s1=array(NA, dim=c(Nt,Nn,N))
+# read data
+for (s in 1:N) {
+  d1 = as.matrix(read.table(file.path(PATH_DATA, "r_All_Motor_L.dr", f1[s])))
+  d2 = as.matrix(read.table(file.path(PATH_DATA, "r_All_Visual_Bi.dr", f2[s])))
+  d = cbind(d1,d2)
+  assert(ncol(d) == Nn)
+  assert(nrow(d) == Nt)
+
+  d.s1[,,s]=scaleTs(d)
+
+  # calculate networks, will write txt files
+  #s=subject(scaleTs(d), id=sprintf("Session1_%03d_%s", s, INFO),
+  #          path = file.path(PATH_RESULTS, "MDM_VisMotor_S1"))
+}
+```
+
+## MDM network estimation Session 2
+```{r MDM network estimation Session 2}
+f1 = list.files(file.path(PATH_DATA, "t_All_Motor_L.dr"), '*.txt')
+f2 = list.files(file.path(PATH_DATA, "t_All_Visual_Bi.dr"), '*.txt')
+assert(length(f1) == N)
+assert(length(f2) == N)
+
+d.s2=array(NA, dim=c(Nt,Nn,N))
+# read data
+for (s in 1:N) {
+  d1 = as.matrix(read.table(file.path(PATH_DATA, "t_All_Motor_L.dr", f1[s])))
+  d2 = as.matrix(read.table(file.path(PATH_DATA, "t_All_Visual_Bi.dr", f2[s])))
+  d = cbind(d1,d2)
+  assert(ncol(d) == Nn)
+  assert(nrow(d) == Nt)
+
+  d.s2[,,s]=scaleTs(d)
+
+  # calculate networks, will write txt files
+  # s=subject(scaleTs(d), id=sprintf("Session2_%03d_%s", s, INFO),
+  #           path = file.path(PATH_RESULTS, "MDM_VisMotor_S2"))
+}
+```
+
+## MDM network estimation Session 3
+```{r MDM network estimation Session 3}
+f1 = list.files(file.path(PATH_DATA, "v_All_Motor_L.dr"), '*.txt')
+f2 = list.files(file.path(PATH_DATA, "v_All_Visual_Bi.dr"), '*.txt')
+assert(length(f1) == N)
+assert(length(f2) == N)
+
+d.s3=array(NA, dim=c(Nt,Nn,N))
+# read data
+for (s in 1:N) {
+  d1 = as.matrix(read.table(file.path(PATH_DATA, "v_All_Motor_L.dr", f1[s])))
+  d2 = as.matrix(read.table(file.path(PATH_DATA, "v_All_Visual_Bi.dr", f2[s])))
+  d = cbind(d1,d2)
+  assert(ncol(d) == Nn)
+  assert(nrow(d) == Nt)
+
+  d.s3[,,s]=scaleTs(d)
+
+  # calculate networks, will write txt files
+  # s=subject(scaleTs(d), id=sprintf("Session3_%03d_%s", s, INFO),
+  #           path = file.path(PATH_RESULTS, "MDM_VisMotor_S3"))
+}
+```
+
+## Loading network data
+```{r Loading network data}
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S1'),
+#                            id = sprintf("Session1_%03d",s), nodes=Nn)
+# }
+# mdm.s1=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S2'),
+#                            id = sprintf("Session2_%03d",s), nodes=Nn)
+# }
+# mdm.s2=mdm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S3'),
+#                            id = sprintf("Session3_%03d",s), nodes=Nn)
+# }
+# mdm.s3=mdm.group(subj)
+
+#save(mdm.s1, mdm.s2, mdm.s3, file = file.path(PATH, "data"", "vismotor.RData"))
+load(file.path(PATH, "data", "vismotor.RData"))
+
+```
+
+## Plot: discount factor delta distribution per node
+```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+
+p1 = ggplot(melt(mdm.s1$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.2) + ggtitle("rest") + ylab("df") + xlab("node") +
+  geom_point(shape=1, color="gray50", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+#boxplot(mdm.s1$df_[,1])
+  
+p2 = ggplot(melt(mdm.s2$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.2) + ggtitle("motor") + ylab("df") + xlab("node") +
+  geom_point(shape=1, color="gray50", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+p3 = ggplot(melt(mdm.s3$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.2) + ggtitle("visual") + ylab("df") + xlab("node") +
+  geom_point(shape=1, color="gray50", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+plot_grid(p1, p2, p3, ncol = 2, nrow = 2)
+```
+
+## Correlation plot
+```{r Correlation plot, fig.height=4, fig.width=6.2}
+mylim = c(-0.8, 0.8)
+p1 = gplotMat(rmdiag(corTs(d.s1)), title='rest', lim=mylim,
+              gradient = c("blue", "white", "red"),
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+
+p2 = gplotMat(rmdiag(corTs(d.s2)), title='motor', lim=mylim,
+              gradient = c("blue", "white", "red"),
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+
+p3 = gplotMat(rmdiag(corTs(d.s3)), title='visual', lim=mylim,
+              gradient = c("blue", "white", "red"),
+              colMapLabel=expression("Pearson\'s"~italic(r))) + xlab("Node") + ylab("Node")
+
+plot_grid(p1, p2, p3, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+
+```
+
+## Plot random timeseries
+```{r Plot random timeseries, fig.height=8, fig.width=10}
+t = 1:230 # interval to plot
+
+# random sampling mice m and nodes n
+nodes = 5 # no. of nodes to plot
+
+d = melt(d.s1[t,sample(Nn,nodes),sample(N,1)])
+p1 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("rest")
+
+d = melt(d.s2[t,sample(Nn,nodes),sample(N,1)])
+p2 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("motor")
+
+d = melt(d.s3[t,sample(Nn,nodes),sample(N,1)])
+p3 = ggplot(d, aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual")
+
+plot_grid(p1, p2, p3, ncol = 1, nrow = 3, rel_widths = c(1, 1))
+```
+
+## Network consistency across subjects
+```{r, Network consistency across subjects, fig.height=7, fig.width=6}
+
+stats1 = binom.nettest(mdm.s1$am)
+stats2 = binom.nettest(mdm.s2$am)
+stats3 = binom.nettest(mdm.s3$am)
+
+p1 = gplotMat(stats1$adj, title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR",
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+
+p3 = gplotMat(stats2$adj, title = "motor", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p4 = gplotMat(rmna(stats2$adj_fdr), title = "binom test & FDR",
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+
+p5 = gplotMat(stats3$adj, title = "visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p6 = gplotMat(rmna(stats3$adj_fdr), title = "binom test & FDR",
+              nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+
+plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
+
+```
+
+
+
+
