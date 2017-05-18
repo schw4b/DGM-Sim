@@ -461,7 +461,7 @@ p4 = ggplot(melt(theta[,2,4,]), aes(x = Var1, y = value, group=Var2, color=as.fa
 p5 = ggplot(melt(theta[,2,5,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor II") + ylim(lim)
 
-#plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
+plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
 ## Plot Connectivity strength inf lat occ
@@ -483,7 +483,7 @@ p4 = ggplot(melt(theta[,3,4,]), aes(x = Var1, y = value, group=Var2, color=as.fa
 p5 = ggplot(melt(theta[,3,5,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor II") + ylim(lim)
 
-#plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
+plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
 ## Mean/SD of the theta_t across runs
