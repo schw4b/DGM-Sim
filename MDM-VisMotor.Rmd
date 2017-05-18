@@ -221,7 +221,7 @@ load(file.path(PATH, "data", "vismotor.RData"))
 ```
 
 ## Plot: discount factor delta distribution per node
-```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6}
 
 p1 = ggplot(melt(mdm.s1$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
   geom_boxplot(width=0.2) + ggtitle("rest") + ylab("df") + xlab("node") +
@@ -487,7 +487,7 @@ plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
 ## Mean/SD of the theta_t across runs
-```{r Mean/Variance of the theta_t across runs, fig.height=4, fig.width=6}
+```{r Mean/Variance of the theta_t across runs, fig.height=2, fig.width=6}
 
 #dims:  230   4   5  15
 M=array(NA, dim=c(N, Ns, length(pars)))
@@ -524,7 +524,7 @@ p3 = ggplot(melt(M[,,3]), aes(x=as.factor(Var2), y=value)) + geom_violin() +
   geom_point(shape=1, color="gray50", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
-plot_grid(p1, p2, p3, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+plot_grid(p1, p2, p3, ncol = 3, nrow = 1, rel_widths = c(1, 1))
 ```
 
 
