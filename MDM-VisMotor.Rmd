@@ -358,19 +358,17 @@ p2 = gplotMat(lpl2, title = "motor", nodeLabels = mylabels, axisTextSize=8, xAng
               lim = c(min(lpl2), max(lpl2[lpl2 < 0]) ))
 p3 = gplotMat(lpl3, title = "visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
               lim = c(min(lpl3), max(lpl3[lpl3 < 0]) ))
-p4 = gplotMat(lpl4, title = "motor/visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl4), max(lpl4[lpl4 < 0]) ))
-p5 = gplotMat(lpl5, title = "motor/visual II", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl5), max(lpl5[lpl5 < 0]) ))
-
-
+p4 = gplotMat(lpl4, title = "motor/visual", nodeLabels = mylabels, axisTextSize=8,
+              xAngle=90, lim = c(min(lpl4), max(lpl4[lpl4 < 0]) ))
+p5 = gplotMat(lpl5, title = "motor/visual II", nodeLabels = mylabels, axisTextSize=8,
+              xAngle=90, lim = c(min(lpl5), max(lpl5[lpl5 < 0]) ))
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
 
 
 ## Common network across subjects and sessions
-```{r Common network across subjects and sessions, fig.height=5, fig.width=6}
+```{r Common network across subjects and sessions, fig.height=7, fig.width=6}
 am = array(NA, dim=c(Nn, Nn, Ns, N))
 am[,,1,] = mdm.s1$am
 am[,,2,] = mdm.s2$am
@@ -388,23 +386,25 @@ tam[,,5,] = mdm.s5$tam
 tstats = binom.nettest(tam, alter = "greater")
 
 # sum across runs
-lpl = rmna(mdm.s1$lpl) + rmna(mdm.s2$lpl) + rmna(mdm.s3$lpl) + rmna(mdm.s4$lpl) + rmna(mdm.s5$lpl)
+lpl = rmna(mdm.s1$lpl) + rmna(mdm.s2$lpl) + rmna(mdm.s3$lpl) + rmna(mdm.s4$lpl) +
+  rmna(mdm.s5$lpl)
 # sum across subjects
 lpl = apply(lpl, c(1,2), sum)
 
-p1 = gplotMat(stats$adj, title = "Common net", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p1 = gplotMat(stats$adj, title = "Common net", nodeLabels = mylabels, axisTextSize=8,
+              xAngle=90)
 p2 = gplotMat(rmna(stats$adj_fdr), title = "binom test & FDR",
               nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
-p3 = gplotMat(tstats$adj, title = "thresholded", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p3 = gplotMat(tstats$adj, title = "thresholded", nodeLabels = mylabels, axisTextSize=8,
+              xAngle=90)
 p4 = gplotMat(rmna(tstats$adj_fdr), title = "binom test & FDR",
               nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
-p5 = gplotMat(lpl, title = "Common net sum(lpl)", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl), max(lpl[lpl < 0]) ))
+p5 = gplotMat(lpl, title = "Common net sum(lpl)", nodeLabels = mylabels, axisTextSize=8,
+              xAngle=90, lim = c(min(lpl), max(lpl[lpl < 0]) ))
 
-
-plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 2, rel_heights = c(1,1,1))
+plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
 
 ## Connectivity strength
@@ -487,7 +487,7 @@ plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
 ## Mean/SD of the theta_t across runs
-```{r Mean/Variance of the theta_t across runs, fig.height=2, fig.width=6}
+```{r Mean/Variance of the theta_t across runs, fig.height=5, fig.width=6}
 
 #dims:  230   4   5  15
 M=array(NA, dim=c(N, Ns, length(pars)))
@@ -524,7 +524,7 @@ p3 = ggplot(melt(M[,,3]), aes(x=as.factor(Var2), y=value)) + geom_violin() +
   geom_point(shape=1, color="gray50", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
-plot_grid(p1, p2, p3, ncol = 3, nrow = 1, rel_widths = c(1, 1))
+plot_grid(p1, p2, p3, ncol = 2, nrow = 2, rel_widths = c(1, 1))
 ```
 
 
