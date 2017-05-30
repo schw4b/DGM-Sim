@@ -1,7 +1,7 @@
 ---
 title: "MDM-VisMotor"
 author: "Simon Schwab"
-date: "17 May 2017"
+date: "30 May 2017"
 output: html_document
 ---
 
@@ -179,74 +179,75 @@ for (s in 1:N) {
 
 ## Loading network data
 ```{r Loading network data}
+# mdm = list() # container for the group data across sessions
+#   
 # subj=list()
 # for (s in 1:N) {
 #   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S1'),
 #                            id = sprintf("Session1_%03d",s), nodes=Nn)
 # }
-# mdm.s1=mdm.group(subj)
+# mdm$s1=mdm.group(subj)
 # 
 # subj=list()
 # for (s in 1:N) {
 #   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S2'),
 #                            id = sprintf("Session2_%03d",s), nodes=Nn)
 # }
-# mdm.s2=mdm.group(subj)
+# mdm$s2=mdm.group(subj)
 # 
 # subj=list()
 # for (s in 1:N) {
 #   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S3'),
 #                            id = sprintf("Session3_%03d",s), nodes=Nn)
 # }
-# mdm.s3=mdm.group(subj)
+# mdm$s3=mdm.group(subj)
 # 
 # subj=list()
 # for (s in 1:N) {
 #   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S4'),
 #                            id = sprintf("Session4_%03d",s), nodes=Nn)
 # }
-# mdm.s4=mdm.group(subj)
+# mdm$s4=mdm.group(subj)
 # 
 # subj=list()
 # for (s in 1:N) {
 #   subj[[s]] = read.subject(path = file.path(PATH_RESULTS, 'MDM_VisMotor_S5'),
 #                            id = sprintf("Session5_%03d",s), nodes=Nn)
 # }
-# mdm.s5=mdm.group(subj)
-#  
-# save(mdm.s1, mdm.s2, mdm.s3, mdm.s4, mdm.s5,
-#       file = file.path(PATH, "data", "vismotor.RData"))
+# mdm$s5=mdm.group(subj)
+# 
+# save(mdm, file = file.path(PATH, "data", "vismotor.RData"))
 
 load(file.path(PATH, "data", "vismotor.RData"))
 ```
 
 ## Plot: discount factor delta distribution per node
 ```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6}
-
-p1 = ggplot(melt(mdm.s1$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("rest") + ylab("df") + xlab("node") +
-  geom_point(shape=1, color="gray50", size=2,
-             position = position_jitter(width = 0.2, height = 0.0002))
+mylim = c(0.5, 1)
+p1 = ggplot(melt(mdm$s1$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("rest") + ylab("df") + xlab("node") + ylim(mylim) +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0))
   
-p2 = ggplot(melt(mdm.s2$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("motor") + ylab("df") + xlab("node") +
-  geom_point(shape=1, color="gray50", size=2,
-             position = position_jitter(width = 0.2, height = 0.0002))
+p2 = ggplot(melt(mdm$s2$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("motor") + ylab("df") + xlab("node") + ylim(mylim) +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0))
 
-p3 = ggplot(melt(mdm.s3$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("visual") + ylab("df") + xlab("node") +
-  geom_point(shape=1, color="gray50", size=2,
-             position = position_jitter(width = 0.2, height = 0.0002))
+p3 = ggplot(melt(mdm$s3$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("visual") + ylab("df") + xlab("node") + ylim(mylim) +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0))
 
-p4 = ggplot(melt(mdm.s4$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("motor/visual") + ylab("df") + xlab("node") +
-  geom_point(shape=1, color="gray50", size=2,
-             position = position_jitter(width = 0.2, height = 0.0002))
+p4 = ggplot(melt(mdm$s4$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("motor/visual") + ylab("df") + xlab("node") +  ylim(mylim) +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0))
 
-p5 = ggplot(melt(mdm.s5$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("motor/visual II") + ylab("df") + xlab("node") +
-  geom_point(shape=1, color="gray50", size=2,
-             position = position_jitter(width = 0.2, height = 0.0002))
+p5 = ggplot(melt(mdm$s5$df_), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("motor/visual II") + ylab("df") + xlab("node") +  ylim(mylim) +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0))
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3)
 ```
@@ -315,11 +316,11 @@ plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ## Network consistency across subjects
 ```{r, Network consistency across subjects, fig.height=12, fig.width=6}
 
-stats1 = binom.nettest(mdm.s1$am, alter = "greater")
-stats2 = binom.nettest(mdm.s2$am, alter = "greater")
-stats3 = binom.nettest(mdm.s3$am, alter = "greater")
-stats4 = binom.nettest(mdm.s4$am, alter = "greater")
-stats5 = binom.nettest(mdm.s5$am, alter = "greater")
+stats1 = binom.nettest(mdm$s1$am, alter = "greater")
+stats2 = binom.nettest(mdm$s2$am, alter = "greater")
+stats3 = binom.nettest(mdm$s3$am, alter = "greater")
+stats4 = binom.nettest(mdm$s4$am, alter = "greater")
+stats5 = binom.nettest(mdm$s5$am, alter = "greater")
 
 p1 = gplotMat(stats1$adj, title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR",
@@ -344,54 +345,57 @@ p10= gplotMat(rmna(stats5$adj_fdr), title = "binom test & FDR",
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, ncol = 2, nrow = 5, rel_heights = c(1,1,1))
 
 ```
-## Sum of LPLs for each session
-```{r Sum of LPLs for each session, fig.height=7, fig.width=6}
-lpl1 = apply(rmna(mdm.s1$lpl), c(1,2), sum)
-lpl2 = apply(rmna(mdm.s2$lpl), c(1,2), sum)
-lpl3 = apply(rmna(mdm.s3$lpl), c(1,2), sum)
-lpl4 = apply(rmna(mdm.s4$lpl), c(1,2), sum)
-lpl5 = apply(rmna(mdm.s5$lpl), c(1,2), sum)
 
-p1 = gplotMat(lpl1, title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl1), max(lpl1[lpl1 < 0]) ))
-p2 = gplotMat(lpl2, title = "motor", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl2), max(lpl2[lpl2 < 0]) ))
-p3 = gplotMat(lpl3, title = "visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90,
-              lim = c(min(lpl3), max(lpl3[lpl3 < 0]) ))
-p4 = gplotMat(lpl4, title = "motor/visual", nodeLabels = mylabels, axisTextSize=8,
-              xAngle=90, lim = c(min(lpl4), max(lpl4[lpl4 < 0]) ))
-p5 = gplotMat(lpl5, title = "motor/visual II", nodeLabels = mylabels, axisTextSize=8,
-              xAngle=90, lim = c(min(lpl5), max(lpl5[lpl5 < 0]) ))
+## Maximize sum of LPLs across subejcts for each session
+```{r Maximize sum of LPLs across subejcts for each session, fig.height=7, fig.width=6}
+
+M = array(0, dim=c(Nn, Nn, Ns))
+for (s in 1:Ns) { # session
+  for (n in 1:Nn) { # node
+    idx = which.max(apply(mdm[[s]]$models[Nn+1,,n,], 1, sum))
+    M[mdm[[s]]$models[2:Nn,idx,n,2],n,s]=1
+  }
+}
+
+p1 = gplotMat(M[,,1], title = "rest", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p2 = gplotMat(M[,,2], title = "motor", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p3 = gplotMat(M[,,3], title = "visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p4 = gplotMat(M[,,4], title = "motor/visual", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
+p5 = gplotMat(M[,,5], title = "motor/visual II", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
 
-
 ## Common network across subjects and sessions
 ```{r Common network across subjects and sessions, fig.height=7, fig.width=6}
 am = array(NA, dim=c(Nn, Nn, Ns, N))
-am[,,1,] = mdm.s1$am
-am[,,2,] = mdm.s2$am
-am[,,3,] = mdm.s3$am
-am[,,4,] = mdm.s4$am
-am[,,5,] = mdm.s5$am
+am[,,1,] = mdm$s1$am
+am[,,2,] = mdm$s2$am
+am[,,3,] = mdm$s3$am
+am[,,4,] = mdm$s4$am
+am[,,5,] = mdm$s5$am
 stats = binom.nettest(am, alter = "greater")
 
 tam = array(NA, dim=c(Nn, Nn, Ns, N))
-tam[,,1,] = mdm.s1$tam
-tam[,,2,] = mdm.s2$tam
-tam[,,3,] = mdm.s3$tam
-tam[,,4,] = mdm.s4$tam
-tam[,,5,] = mdm.s5$tam
+tam[,,1,] = mdm$s1$tam
+tam[,,2,] = mdm$s2$tam
+tam[,,3,] = mdm$s3$tam
+tam[,,4,] = mdm$s4$tam
+tam[,,5,] = mdm$s5$tam
 tstats = binom.nettest(tam, alter = "greater")
 
-# sum across runs
-lpl = rmna(mdm.s1$lpl) + rmna(mdm.s2$lpl) + rmna(mdm.s3$lpl) + rmna(mdm.s4$lpl) +
-  rmna(mdm.s5$lpl)
-# sum across subjects
-lpl = apply(lpl, c(1,2), sum)
+M = array(0, dim=c(Nn, Nn))
+lpl=array(NA, dim=c(Ns, 2^(Nn-1)))
+for (n in 1:Nn) { # node
+  for (s in 1:Ns) { # session
+    lpl[s,] = apply(mdm[[s]]$models[Nn+1,,n,], 1, sum)
+    
+  }
+  idx = which.max(apply(lpl, 2, sum))
+  M[mdm[[1]]$models[2:Nn,idx,n,1],n]=1
+}
 
-p1 = gplotMat(stats$adj, title = "Common net", nodeLabels = mylabels, axisTextSize=8,
+p1 = gplotMat(stats$adj, title = "Common net (proportions)", nodeLabels = mylabels, axisTextSize=8,
               xAngle=90)
 p2 = gplotMat(rmna(stats$adj_fdr), title = "binom test & FDR",
               nodeLabels = mylabels, axisTextSize=8, xAngle=90)
@@ -401,8 +405,7 @@ p3 = gplotMat(tstats$adj, title = "thresholded", nodeLabels = mylabels, axisText
 p4 = gplotMat(rmna(tstats$adj_fdr), title = "binom test & FDR",
               nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
-p5 = gplotMat(lpl, title = "Common net sum(lpl)", nodeLabels = mylabels, axisTextSize=8,
-              xAngle=90, lim = c(min(lpl), max(lpl[lpl < 0]) ))
+p5 = gplotMat(M, title = "Common group net", nodeLabels = mylabels, axisTextSize=8, xAngle=90)
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
@@ -414,117 +417,169 @@ source('~/workspace/functions MDM in R.R')
 node = 9 # Occ fusiform
 pars = c(5, 7, 8) # Occ pole, inf lat occ, post sup lat occ.
 s = 5
-df = mean(c(mdm.s1$df_[,node], mdm.s2$df_[,node], mdm.s3$df_[,node], mdm.s4$df_[,node], mdm.s5$df_[,node]))
+
+df = array(NA, dim = c(N, Nn, Ns))
+df[,,1]=mdm$s1$df_
+df[,,2]=mdm$s2$df_
+df[,,3]=mdm$s3$df_
+df[,,4]=mdm$s4$df_
+df[,,5]=mdm$s5$df_
 
 # select time series of parents from best model
-#pars=mdm.s1$winner[2:Nn,node,s]
+#pars=mdm$s1$winner[2:Nn,node,s]
 #pars=pars[pars!=0]
 
-# time x parents x session x subjects
-theta = array(NA, dim=c(Nt, length(pars)+1, Ns, N))
+# time x nodes x session x subjects
+smt = array(NA, dim=c(Nt, length(pars)+1, Ns, N))
+sCt = array(NA, dim=c(Nt, length(pars)+1, Ns, N))
+
 for (s in 1:N) { # subjects
   for (r in 1:Ns) { # sessions
-    Ft=array(1,dim=c(Nt,length(pars)+1))
-    #if (ncol(Ft)>1) {
-    Ft[,2:ncol(Ft)]=d.ts[,pars,r,s] # selects parents
-    #}
-    
-    Yt=d.ts[,node,r,s]
-    fit=dlm.lpl(Yt, t(Ft), delta = df)
-    
-    y = dlm_smoo(fit$mt, fit$Ct, fit$Rt, fit$nt, fit$dt)
-    
-    theta[, 1, r, s] = y$smt[1,]
-    theta[, 2, r, s] = y$smt[2,]
-    theta[, 3, r, s] = y$smt[3,]
-    theta[, 4, r, s] = y$smt[4,]
+    #for (n in 1:Nn) { # child node
+      
+        Ft=array(1,dim=c(Nt,length(pars)+1))
+        Ft[,2:ncol(Ft)]=d.ts[,pars,r,s] # selects parents
+        Yt=d.ts[,node,r,s]
+        
+        df = getModel(mdm[[r]]$models[,,node,s], pars)[Nn+2] # df corresponding to parent model pars
+        fit=dlm.lpl(Yt, t(Ft), delta = df)
+        
+        y = dlm_smoo(fit$mt, fit$Ct, fit$Rt, fit$nt, fit$dt)
+        
+        smt[, 1, r, s] = y$smt[1,]
+        smt[, 2, r, s] = y$smt[2,]
+        smt[, 3, r, s] = y$smt[3,]
+        smt[, 4, r, s] = y$smt[4,]
+     # }
   }
 }
 ```
 
 ## Plot Connectivity strength Occ pole
-```{r Plot connectivity strength Occ pole, fig.height=8, fig.width=10}
-lim=c(-1.5, 1.5)
+```{r Plot connectivity strength 1, fig.height=8, fig.width=10}
+lim=c(-2, 2)
+p = 1 # select parent
+s = 1:15 # select subject
 
-p1 = ggplot(melt(theta[,2,1,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p1 = ggplot(melt(smt[,p+1,1,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("rest") + ylim(lim)
 
-p2 = ggplot(melt(theta[,2,2,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p2 = ggplot(melt(smt[,p+1,2,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("motor") + ylim(lim)
 
-p3 = ggplot(melt(theta[,2,3,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p3 = ggplot(melt(smt[,p+1,3,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual") + ylim(lim)
 
-p4 = ggplot(melt(theta[,2,4,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p4 = ggplot(melt(smt[,p+1,4,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor") + ylim(lim)
 
-p5 = ggplot(melt(theta[,2,5,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p5 = ggplot(melt(smt[,p+1,5,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor II") + ylim(lim)
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
+
 
 ## Plot Connectivity strength inf lat occ
-```{r Plot connectivity strength inf lat occ, fig.height=8, fig.width=10}
-lim=c(-1.5, 1.5)
+```{r Plot connectivity strength 2, fig.height=8, fig.width=10}
+lim=c(-2, 2)
+p = 2 # select parent
+s = 1:15 # select subject
 
-p1 = ggplot(melt(theta[,3,1,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p1 = ggplot(melt(smt[,p+1,1,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("rest") + ylim(lim)
 
-p2 = ggplot(melt(theta[,3,2,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p2 = ggplot(melt(smt[,p+1,2,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("motor") + ylim(lim)
 
-p3 = ggplot(melt(theta[,3,3,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p3 = ggplot(melt(smt[,p+1,3,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual") + ylim(lim)
 
-p4 = ggplot(melt(theta[,3,4,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p4 = ggplot(melt(smt[,p+1,4,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor") + ylim(lim)
 
-p5 = ggplot(melt(theta[,3,5,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+p5 = ggplot(melt(smt[,p+1,5,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
   theme_minimal() + ggtitle("visual/motor II") + ylim(lim)
 
 plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
 ```
 
+
+## Plot Connectivity strength post sup lat occ
+```{r Plot connectivity strength 3, fig.height=8, fig.width=10}
+lim=c(-2, 2)
+p = 3 # select parent
+s = 1:15 # select subject
+
+p1 = ggplot(melt(smt[,p+1,1,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("rest") + ylim(lim)
+
+p2 = ggplot(melt(smt[,p+1,2,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("motor") + ylim(lim)
+
+p3 = ggplot(melt(smt[,p+1,3,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual") + ylim(lim)
+
+p4 = ggplot(melt(smt[,p+1,4,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual/motor") + ylim(lim)
+
+p5 = ggplot(melt(smt[,p+1,5,s]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + geom_line() +
+  theme_minimal() + ggtitle("visual/motor II") + ylim(lim)
+
+plot_grid(p1, p2, p3, p4, p5, ncol = 1, nrow = 5, rel_widths = c(1, 1))
+```
+
+
 ## Mean/SD of the theta_t across runs
-```{r Mean/Variance of the theta_t across runs, fig.height=5, fig.width=6}
+```{r Mean/Variance of the theta_t across runs, fig.height=4, fig.width=6}
 
-#dims:  230   4   5  15
+#smt dims:  230   4   5  15
 M=array(NA, dim=c(N, Ns, length(pars)))
-M[,1,1] = apply(theta[,2,1,], 2, mean)
-M[,2,1] = apply(theta[,2,2,], 2, mean)
-M[,3,1] = apply(theta[,2,3,], 2, mean)
-M[,4,1] = apply(theta[,2,4,], 2, mean)
-M[,5,1] = apply(theta[,2,5,], 2, mean)
+for (r in 1:Ns) {
+  for (p in 1:length(pars)) {
+    M[,r,p] = apply(smt[,p+1,r,], 2, mean)
+  }
+}
 
-M[,1,2] = apply(theta[,3,1,], 2, mean)
-M[,2,2] = apply(theta[,3,2,], 2, mean)
-M[,3,2] = apply(theta[,3,3,], 2, mean)
-M[,4,2] = apply(theta[,3,4,], 2, mean)
-M[,5,2] = apply(theta[,3,5,], 2, mean)
-
-M[,1,3] = apply(theta[,4,1,], 2, mean)
-M[,2,3] = apply(theta[,4,2,], 2, mean)
-M[,3,3] = apply(theta[,4,3,], 2, mean)
-M[,4,3] = apply(theta[,4,4,], 2, mean)
-M[,5,3] = apply(theta[,4,5,], 2, mean)
+SD=array(NA, dim=c(N, Ns, length(pars)))
+for (r in 1:Ns) {
+  for (p in 1:length(pars)) {
+    SD[,r,p] = apply(smt[,p+1,r,], 2, sd)
+  }
+}
 
 p1 = ggplot(melt(M[,,1]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("Occ Pole") + ylab("mean theta_t") + xlab("session") +
-  geom_point(shape=1, color="gray50", size=2,
+  geom_boxplot(width=0.4) + ggtitle("Occ Pole") + ylab("mean theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
 p2 = ggplot(melt(M[,,2]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("inf lat occ") + ylab("mean theta_t") + xlab("session") +
-  geom_point(shape=1, color="gray50", size=2,
+  geom_boxplot(width=0.4) + ggtitle("inf lat occ") + ylab("mean theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
 p3 = ggplot(melt(M[,,3]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
-  geom_boxplot(width=0.2) + ggtitle("post sup lat occ") + ylab("mean theta_t") + xlab("session") +
-  geom_point(shape=1, color="gray50", size=2,
+  geom_boxplot(width=0.4) + ggtitle("post sup lat occ") + ylab("mean theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
              position = position_jitter(width = 0.2, height = 0.0002))
 
-plot_grid(p1, p2, p3, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+p4 = ggplot(melt(SD[,,1]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("Occ Pole") + ylab("SD theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+p5 = ggplot(melt(SD[,,2]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("inf lat occ") + ylab("SD theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+p6 = ggplot(melt(SD[,,3]), aes(x=as.factor(Var2), y=value)) + geom_violin() + 
+  geom_boxplot(width=0.4) + ggtitle("post sup lat occ") + ylab("SD theta_t") + xlab("session") +
+  geom_point(shape=1, color="gray70", size=2,
+             position = position_jitter(width = 0.2, height = 0.0002))
+
+
+plot_grid(p1, p2, p3, p4, p5, p6, ncol = 3, nrow = 2)
 ```
 
 
