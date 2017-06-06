@@ -566,7 +566,7 @@ p2 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(wid
 plot_grid(p1, p2, ncol=1, nrow=2)
 ggsave(path = PATH_FIG, "gfig-7IntSensSpec.png")
 ```
-## Median Sensitivity and Specificity corresponding to abvove figure
+## Median Sensitivity and Specificity corresponding to above figure
 ```{r Median Sensitivity and Specificity corresponding to abvove figure}
 # Sensitivity
 c(median(perf.mdm$int0[,1]), median(perf.mdm$int1[,1]), median(perf.mdm$int2[,1]), median(perf.mdm$int3[,1]),
