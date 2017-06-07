@@ -1,7 +1,7 @@
 ---
 title: "MDM-Simulations"
 author: "Simon Schwab"
-date: "6 Jun 2017"
+date: "7 Jun 2017"
 output: html_document
 ---
 
@@ -92,6 +92,13 @@ ts.ssint6 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1
 xtrue=array(NA,dim=c(5,5))
 xtrue[1,2] = xtrue[2,3] = xtrue[3,4] = xtrue[4,5] = xtrue[1,5] = 1
 ```
+
+## Signal change
+```{r Signal change}
+apply(ts.int0[,,1], 2, sd)
+
+```
+
 
 ## Pearson's correlations of the nodes 
 ```{r}
@@ -233,7 +240,7 @@ bot=plot_grid(p3, p4, labels=c("D", "E"), ncol = 2, nrow = 1, rel_widths = c(1, 
 
 plot_grid(top, mid, bot, ncol=1, rel_heights = c(0.9, 0.95, 1))
 
-ggsave(path = PATH_FIG, "gfig-truenetAndCorr.png")
+# ggsave(path = PATH_FIG, "gfig-truenetAndCorr.png")
 ```
 
 ## Plot: HRF interventions 
@@ -241,7 +248,7 @@ ggsave(path = PATH_FIG, "gfig-truenetAndCorr.png")
 s=1:15 # Selection of subjects
 ix=50:110 # start is set to stimulus onset at 5s
 l=length(s)*length(ix)
-int=as.factor(c(rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l), rep(7,l)))
+int=as.factor(c(rep(0,l), rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l)))
 
 img = readPNG(file.path(PATH_FIG, "fig-interventions-page001.png"))
 g = rasterGrob(img, interpolate=T)
@@ -251,16 +258,16 @@ pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~it
          title = "edge correlations") +
   xlab("Node pairs") + ylab("Dataset") + 
   scale_x_discrete(limits=c("1\n2","2\n3","3\n4", "4\n5", "1\n5")) +
-  scale_y_discrete(limits=c("Sim1", "Sim22", "no int. 1", "interv. 2", "interv. 3",
-                            "interv. 4", "interv. 5", "interv. 6", "interv. 7"))
+  scale_y_discrete(limits=c("Sim1", "Sim22", "int0", "int1", "int2",
+                            "int3", "int4", "int5", "int6"))
 
 n=1
 x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
 x=melt(x)
-x$interv=int
-p1=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+x$int=int
+p1=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
   ggtitle('node 1') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,],
                                                     color="gray60")
 
@@ -269,8 +276,8 @@ x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
 x=melt(x)
-x$interv=int
-p2=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+x$int=int
+p2=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
   ggtitle('node 2') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
 
 n=4
@@ -278,8 +285,8 @@ x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
 x=melt(x)
-x$interv=int
-p3=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+x$int=int
+p3=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
   ggtitle('node 4') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
 
 n=5
@@ -287,8 +294,8 @@ x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
 x=melt(x)
-x$interv=int
-p4=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=interv)) + geom_line() +
+x$int=int
+p4=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
   ggtitle('node 5') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
 
 top=plot_grid(pA, pB, labels=c("A", "B"), ncol = 2, nrow = 1, rel_widths = c(0.8, 1))
@@ -296,7 +303,7 @@ bot=plot_grid(p1, p2, p3, p4, labels=c("C"), ncol = 2, nrow = 2, rel_widths = c(
 
 plot_grid(top, bot, ncol=1, nrow=2, rel_heights = c(1, 1.5))
 
-ggsave(path = PATH_FIG, "gfig-Intervention.png")
+# ggsave(path = PATH_FIG, "gfig-Intervention.png")
 
 ```
 
@@ -347,7 +354,7 @@ bot=plot_grid(p7, p8, p9, p10, labels=c("E", "", "F", ""), ncol = 4, nrow = 1, r
 
 plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.53))
 
-ggsave(path = PATH_FIG, "gfig-MDMvsPatel.png")
+# ggsave(path = PATH_FIG, "gfig-MDMvsPatel.png")
 ```
 
 ## Loading MDM of 7 HRF datasets 
@@ -564,7 +571,7 @@ p2 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(wid
         panel.grid.major.x = element_blank(), axis.text = element_text(size=10))
 
 plot_grid(p1, p2, ncol=1, nrow=2)
-ggsave(path = PATH_FIG, "gfig-7IntSensSpec.png")
+# ggsave(path = PATH_FIG, "gfig-7IntSensSpec.png")
 ```
 ## Median Sensitivity and Specificity corresponding to above figure
 ```{r Median Sensitivity and Specificity corresponding to abvove figure}
