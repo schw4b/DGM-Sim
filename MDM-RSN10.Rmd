@@ -1,7 +1,7 @@
 ---
 title: "MDM-RSN10"
 author: "Simon Schwab"
-date: "6 Jun 2017"
+date: "7 Jun 2017"
 output: html_document
 ---
 
@@ -105,19 +105,19 @@ d.r4=melt(mdm.net10.r4$df_)
 
 p1 = ggplot(d.r1, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
-  ggtitle(sprintf("Run 1 (N=%d)", N)) + ylab("df") + xlab("node")
+  ggtitle(sprintf("Run 1", N)) + ylab("df") + xlab("node")
 
 p2 = ggplot(d.r2, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
-  ggtitle(sprintf("Run 2 (N=%d)", N)) + ylab("df") + xlab("node")
+  ggtitle(sprintf("Run 2", N)) + ylab("df") + xlab("node")
 
 p3 = ggplot(d.r3, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
-  ggtitle(sprintf("Run 3 (N=%d)", N)) + ylab("df") + xlab("node")
+  ggtitle(sprintf("Run 3", N)) + ylab("df") + xlab("node")
 
 p4 = ggplot(d.r4, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
-  ggtitle(sprintf("Run 4 (N=%d)", N)) + ylab("df") + xlab("node")
+  ggtitle(sprintf("Run 4", N)) + ylab("df") + xlab("node")
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
@@ -247,6 +247,7 @@ p6 = gplotMat(rmdiag(rmna(stats.mn$adj_fdr)), title = "binom test & FDR",
               gradient = c("white", "violet", "blue"),
               nodeLabels=labels$Label, axisTextSize=8, xAngle=90)
 
-plot_grid(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3, rel_heights = c(1,1,1))
+plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "", "", "B", ""),
+          ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 ```
 
