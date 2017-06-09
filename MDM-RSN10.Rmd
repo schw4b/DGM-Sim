@@ -1,7 +1,7 @@
 ---
 title: "MDM-RSN10"
 author: "Simon Schwab"
-date: "7 Jun 2017"
+date: "9 Jun 2017"
 output: html_document
 ---
 
@@ -54,7 +54,7 @@ PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmat
 PATH      = file.path(PATH_HOME, 'workspace', 'MDM-nbooks')
 PATH_DATA = file.path(PATH, 'data')
 
-N      = 320
+N      = 500
 N_comp = 10 # RSNs
 N_t    = 1200 # Volumes
 N_runs = 4
@@ -88,8 +88,14 @@ print(labels)
 # mdm.net10.r3 = mdm.group(subj_r3)
 # mdm.net10.r4 = mdm.group(subj_r4)
 # 
-# f=file(file.path(PATH,"net10.RData"))
-# save(mdm.net10.r1, mdm.net10.r2, mdm.net10.r3, mdm.net10.r4, file = f)
+# # save some space
+# mdm.net10.r1$models = NULL
+# mdm.net10.r2$models = NULL
+# mdm.net10.r3$models = NULL
+# mdm.net10.r4$models = NULL
+# 
+# f=file(file.path(PATH_DATA,"net10.RData"))
+# save(mdm.net10.r1, mdm.net10.r2, mdm.net10.r3, mdm.net10.r4, file = f, compress = T)
 # close(f)
 load(file.path(PATH_DATA, "net10.RData"))
 ```

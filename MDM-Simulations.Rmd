@@ -248,7 +248,8 @@ plot_grid(top, mid, bot, ncol=1, rel_heights = c(0.9, 0.95, 1))
 s=1:15 # Selection of subjects
 ix=50:110 # start is set to stimulus onset at 5s
 l=length(s)*length(ix)
-int=as.factor(c(rep(0,l), rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l)))
+#int=as.factor(c(rep(0,l), rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l)))
+int=as.factor(c(rep("0 no",l), rep("1 0.4s",l), rep("2 0.8s",l), rep("3 1.1s",l), rep("4 1.4s",l), rep("5 1.6s",l), rep("6 1.8s",l)))
 
 img = readPNG(file.path(PATH_FIG, "fig-interventions-page001.png"))
 g = rasterGrob(img, interpolate=T)
@@ -308,51 +309,50 @@ plot_grid(top, bot, ncol=1, nrow=2, rel_heights = c(1, 1.5))
 ```
 
 ## Plot: MDM vs. Patel 
-```{r Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+```{r Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.5, fig.width=5.5}
 
-p1 = gplotMat(stats.mdm.sim1$adj, 'MDM', 'Propor')
-p2 = gplotMat(stats.pat.sim1$adj, 'Patel', 'Propor')
+p1 = gplotMat(stats.mdm.sim1$adj, 'MDM', '%', hasColMap = F)
+p2 = gplotMat(stats.pat.sim1$adj, 'Patel', '%')
 
 d1 = data.frame(Percent = c(perf.mdm$sim1[,c(1,2)], perf.pat$sim1[,c(1,2)]),
                 Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
                 Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
 d1$gm = interaction(d1$Method, d1$Measure)
-p3 = ggplot(d1, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.3) +
-   geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07)) +
+p3 = ggplot(d1, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.4) +
+   geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.5, height = 0.1)) +
   theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
         panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
         panel.grid.major.x = element_blank()) +
   scale_x_discrete(name ="Sensitivity  Specificity",
                    breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
-                   labels=c("MDM", "MDM", "Pat", "Pat"))
+                   labels=c("MDM", "MDM", "Pat", "Pat"))+ ggtitle("stationary")
 
-p4 = gplotMat(stats.mdm.sim22$adj, 'MDM', 'Propor')
-p5 = gplotMat(stats.pat.sim22$adj, 'Patel', 'Propor')
+p4 = gplotMat(stats.mdm.sim22$adj, 'MDM', '%', hasColMap = F)
+p5 = gplotMat(stats.pat.sim22$adj, 'Patel', '%')
 
 # maybe use melt
 d22 = data.frame(Percent = c(perf.mdm$sim22[,c(1,2)], perf.pat$sim22[,c(1,2)]),
                  Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
                  Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
 d22$gm = interaction(d22$Method, d22$Measure)
-p6 = ggplot(d22, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.3) +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07)) +
+p6 = ggplot(d22, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.4) +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.5, height = 0.1)) +
   theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
         panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
         panel.grid.major.x = element_blank()) +
   scale_x_discrete(name ="Sensitivity  Specificity",
                    breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
-                   labels=c("MDM", "MDM", "Pat", "Pat"))
+                   labels=c("MDM", "MDM", "Pat", "Pat")) + ggtitle("dynamic")
+top=plot_grid(p4, p5, p6, p1, p2, p3, labels=c("A", "", "B", "C", "", "D"), ncol = 3, nrow = 2, rel_widths = c(0.65, 1, 0.7))
 
-top=plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "C", "B", "", "D"), ncol = 3, nrow = 2, rel_widths = c(1.1, 1.1, 1))
+p7=gplotMat(rmna(stats.mdm.sim1$adj_fdr), 'MDM', '%', hasColMap = F, axisTextSize = 10)
+p8=gplotMat(rmna(stats.pat.sim1$adj_fdr), 'Patel', '%', axisTextSize = 10)
+p9=gplotMat(rmna(stats.mdm.sim22$adj_fdr), 'MDM', '%', hasColMap = F, axisTextSize = 10)
+p10=gplotMat(rmna(stats.pat.sim22$adj_fdr), 'Patel', '%', hasColMap = F, axisTextSize = 10)
 
-p7=gplotMat(rmna(stats.mdm.sim1$adj_fdr), 'MDM', 'Propor', hasColMap = F)
-p8=gplotMat(rmna(stats.pat.sim1$adj_fdr), 'Patel', 'Propor', hasColMap = F)
-p9=gplotMat(rmna(stats.mdm.sim22$adj_fdr), 'MDM', 'Propor', hasColMap = F)
-p10=gplotMat(rmna(stats.pat.sim22$adj_fdr), 'Patel', 'Propor')
+bot=plot_grid(p9, p10, p7, p8, labels=c("E", "", "F", ""), ncol = 4, nrow = 1, rel_widths = c(0.58, 0.58, 0.58, 1))
 
-bot=plot_grid(p7, p8, p9, p10, labels=c("E", "", "F", ""), ncol = 4, nrow = 1, rel_widths = c(0.6, 0.6, 0.6, 1))
-
-plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.53))
+plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.42))
 
 # ggsave(path = PATH_FIG, "gfig-MDMvsPatel.png")
 ```
