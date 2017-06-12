@@ -1,11 +1,11 @@
 ---
 title: "MDM-Mouse"
 author: "Simon Schwab"
-date: "6 April 2017"
+date: "9 June 2017"
 output: html_document
 ---
 
-### Install R Markdown 
+## Install R Markdown 
 ```{r Install R Markdown}
 # install.packages("rmarkdown")
 ```
@@ -14,7 +14,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Install required packages 
+## Install required packages 
 ```{r install required packages}
 # install.packages("devtools")
 # install.packages("testit")
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("reshape2")
 ```
 
-### Load libraries 
+## Load libraries 
 ```{r Load required libraries, message=FALSE}
 library(devtools)
 library(testit)
@@ -32,7 +32,7 @@ library(cowplot)
 library(reshape2)
 ```
 
-### Install and load multdyn 
+## Install and load multdyn 
 ```{r Install multdyn, message=FALSE}
 # install_github("schw4b/multdyn", ref = "develop")
 # library(multdyn)
@@ -41,7 +41,7 @@ library(reshape2)
 load_all('~/workspace/multdyn')
 ```
 
-### Main variables 
+## Main variables 
 ```{r Main variables}
 N=16 # Number of simulated subjects/datasets
 Nn=14 # Number of nodes, does not apply to all datasets
@@ -49,11 +49,11 @@ Nn1=8
 Nn2=6
 N_t= 2000 # Volumes/no. of timepoints
 PATH_HOME = "/home/simon"
-PATH = file.path(PATH_HOME, 'workspace', 'MDM-nbooks') # path where figures will be stored
+PATH = file.path(PATH_HOME, 'Data', 'MDM-nbooks')
 PATH_DATA = file.path(PATH_HOME, "Drive", "Mouse")
 ```
 
-### Loading network data
+## Loading network data
 ```{r Loading network data}
 # subj=list()
 # for (s in 1:N) {
@@ -83,11 +83,11 @@ PATH_DATA = file.path(PATH_HOME, "Drive", "Mouse")
 #setwd(PATH)
 #save(mdm.mouse14, mdm.mouse16, mdm.net1wt, mdm.net2wt, file = "mdm-mouse.RData")
 
-load(file.path(PATH,"mdm-mouse.RData"))
+load(file.path(PATH, "data", "mdm-mouse.RData"))
 
 ```
 
-### Plot: discount factor delta distribution per node
+## Plot: discount factor delta distribution per node
 ```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
 
 node=as.factor(sort(rep(1:14,N)))
@@ -114,7 +114,7 @@ p4 = ggplot(d4, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.2) +
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
-### Correlation plot
+## Correlation plot
 ```{r Correlation plot, fig.height=4, fig.width=5.8}
 f14 = list.files(file.path(PATH_DATA, "Timeseries_14ROIs_CP"), "*.txt")
 f16 = list.files(file.path(PATH_DATA, "WT_fmr1ko_120d_dr_stage1"), "*.txt")
@@ -161,7 +161,7 @@ plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_widths = c(1, 1))
 
 ```
 
-### Plot random timeseries
+## Plot random timeseries
 ```{r Plot random timeseries, fig.height=8, fig.width=10}
 t = 1:200 # interval to plot
 
@@ -185,14 +185,12 @@ plot_grid(p1, p2, p3, p4, ncol = 1, nrow = 4, rel_widths = c(1, 1))
 
 ```
 
-### Network consistency across mice
+## Network consistency across mice
 
-```{r, Network consistency across mice, fig.height=8, fig.width=5.2}
+```{r, Network consistency across mice, fig.height=4, fig.width=5.2}
 
 stats1 = binom.nettest(mdm.mouse14$am)
 stats2 = binom.nettest(mdm.mouse16$am)
-stats3 = binom.nettest(mdm.net1wt$am)
-stats4 = binom.nettest(mdm.net2wt$am)
 
 p1 = gplotMat(stats1$adj, title = "Mouse 14 ROIs")
 p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR")
@@ -200,18 +198,23 @@ p2 = gplotMat(rmna(stats1$adj_fdr), title = "binom test & FDR")
 p3 = gplotMat(stats2$adj, title = "Mouse 16 ROIs")
 p4 = gplotMat(rmna(stats2$adj_fdr), title = "binom test & FDR")
 
-mylabels = c("OrbM", "OrbL", "NAcc", "Cing",  "Amyg", "CA1", "DG", "Entorh")
-p5 = gplotMat(stats3$adj, title = "Net1_WT", labels=mylabels, axisTextSize=8, xAngle=90)
-p6 = gplotMat(rmna(stats3$adj_fdr), title = "binom test & FDR", labels=mylabels, axisTextSize=8, xAngle=90)
-
-mylabels = c("SomSensR", "MotorR", "PutamR", "SomSensL", "MotorL", "PutamL")
-p7 = gplotMat(stats4$adj, title = "Net2_WT", labels=mylabels, axisTextSize=8, xAngle=90)
-p8 = gplotMat(rmna(stats4$adj_fdr), title = "binom test & FDR", labels=mylabels, axisTextSize=8, xAngle=90)
-
-plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
+plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_heights = c(1,1,1,1))
 
 ```
 
 
+```{r, Network consistency across mice new data, fig.height=4, fig.width=5.2}
+stats3 = binom.nettest(mdm.net1wt$am)
+stats4 = binom.nettest(mdm.net2wt$am)
 
+mylabels = c("OrbM", "OrbL", "NAcc", "Cing",  "Amyg", "CA1", "DG", "Entorh")
+p5 = gplotMat(stats3$adj, title = "Net1_WT", nodeLabels=mylabels, axisTextSize=8, xAngle=90)
+p6 = gplotMat(rmna(stats3$adj_fdr), title = "binom test & FDR", nodeLabels=mylabels, axisTextSize=8, xAngle=90)
 
+mylabels = c("SomSensR", "MotorR", "PutamR", "SomSensL", "MotorL", "PutamL")
+p7 = gplotMat(stats4$adj, title = "Net2_WT", nodeLabels=mylabels, axisTextSize=8, xAngle=90)
+p8 = gplotMat(rmna(stats4$adj_fdr), title = "binom test & FDR", nodeLabels=mylabels, axisTextSize=8, xAngle=90)
+
+plot_grid(p5, p6, p7, p8, ncol = 2, nrow = 2, rel_heights = c(1,1,1,1))
+
+```
