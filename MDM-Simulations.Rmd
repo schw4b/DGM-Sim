@@ -199,17 +199,17 @@ perf.mdm$sim22 = perf(mdm.sim22$tam, xtrue)
 perf.pat$sim1  = perf(patel.sim1$net, xtrue)
 perf.pat$sim22 = perf(patel.sim22$net, xtrue)
 
-## Mean Sensitivity, specificity and accuracy for MDM and Patel's
-apply(perf.mdm$sim1[,c(1,2,8)], 2, median)
-apply(perf.pat$sim1[,c(1,2,8)], 2, median)
-
+## Median Sensitivity, specificity and accuracy for MDM and Patel's
 apply(perf.mdm$sim22[,c(1,2,8)], 2, median)
 apply(perf.pat$sim22[,c(1,2,8)], 2, median)
+
+apply(perf.mdm$sim1[,c(1,2,8)], 2, median)
+apply(perf.pat$sim1[,c(1,2,8)], 2, median)
 
 ```
 
 ## Plot: True network and correlation matrix 
-```{r True network and correlation matrix, message=FALSE, warning=TRUE, fig.height=6.5, fig.width=6}
+```{r True network and correlation matrix, fig.height=4, fig.width=7, message=FALSE, warning=TRUE}
 
 # computational complexity
 
@@ -217,46 +217,52 @@ comput=data.frame(nodes = as.factor(c(3,4,5,6,7,8,9,10,11,12,13,15,20,25)),
                   time= c(0.2, 0.5, 1, 2.2, 4.8, 10, 22, 48, 60+46, 3*60+44,
                           8*60+8, 38*60, 30*60*60, 58*24*60*60)^(1/3)
                   )
-#p0 = ggplot(comput, aes(x=nodes, y=time))  + geom_line() + geom_point()
-p0 = ggplot(data=comput, aes(x=nodes, y=time)) + geom_bar(stat="identity", fill="steelblue") +
+p5 = ggplot(data=comput, aes(x=nodes, y=time)) + geom_bar(stat="identity", fill="steelblue") +
   geom_text(aes(label=c("0.2\nsec","0.5\nsec","1\nsec","2.2\nsec","4.8\nsec","10\nsec",
                         "22\nsec","48\nsec","2\nmin","4\nmin","8\nmin","38\nmin","30\nhrs","58\ndays")), size=2.5, vjust=-0.3) +
   theme_minimal() + ylab(expression('time s'^(1/3))) + ylim(c(0, 210)) + xlab("network size")
 
+
 img = readPNG(file.path(PATH_FIG, "fig-truenet-page001.png"))
 g = rasterGrob(img, interpolate=T)
+p1 = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=11)) + ggtitle('Simulated\n5-node network')
 
-p1 = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12)) + ggtitle('Simulated 5-node network')
-
-p2 = gplotMat(rmna(xtrue), title='5-node\nnetwork', hasColMap = F)
-p3 = gplotMat(rmdiag(corTs(ts.sim22)), title='Dynamic connections\n(Sim22, N=50)',
+p2 = gplotMat(rmna(xtrue), title='5-node\nnetwork', hasColMap = F, titleTextSize = 11)
+p3 = gplotMat(rmdiag(corTs(ts.sim22)), title='Dynamic\nSim22, N=50', hasColMap = F, titleTextSize = 11,
               colMapLabel = expression("Pearson\'s"~italic(r)), lim = c(0, 0.5)) + xlab("Node") + ylab("Node")
-p4 = gplotMat(rmdiag(corTs(ts.sim1)), title='Static connections\n(Sim1, N=50)',
+p4 = gplotMat(rmdiag(corTs(ts.sim1)), title='Stationary\nSim1, N=50', titleTextSize = 11,
               colMapLabel = expression("Pearson\'s"~italic(r)), lim = c(0, 0.5)) +  xlab("Node") + ylab("Node")
 
-top=plot_grid(p0, labels=c("A"), ncol = 2, nrow = 1, rel_widths = c(1, 0.2))
-mid=plot_grid(p1, p2, labels=c("B", "C"), ncol = 2, nrow = 1, rel_widths = c(1, 0.4))
-bot=plot_grid(p3, p4, labels=c("D", "E"), ncol = 2, nrow = 1, rel_widths = c(1, 1))
+top = plot_grid(p1, p2, p3, p4, ncol=4, nrow = 1, rel_widths = c(0.6, 0.55,0.55,1), labels=c("A","","B"))
+bottom= plot_grid(p5, ncol=2, labels = "C")
+plot_grid(top, bottom, ncol=1)
 
-plot_grid(top, mid, bot, ncol=1, rel_heights = c(0.9, 0.95, 1))
+ggsave(path = PATH_FIG, "Fig1.png")
+```
 
-# ggsave(path = PATH_FIG, "gfig-truenetAndCorr.png")
+## Correlations in Sim22 and Sim1
+```{r}
+sort(rmdiag(corTs(ts.sim22))[as.logical(xtrue)])
+mean(rmdiag(corTs(ts.sim22))[as.logical(xtrue)], na.rm = T)
+sort(rmdiag(corTs(ts.sim1))[as.logical(xtrue)])
+mean(rmdiag(corTs(ts.sim1))[as.logical(xtrue)], na.rm = T)
 ```
 
 ## Plot: HRF interventions 
-```{r Plot: HRF interventions, message=FALSE, warning=TRUE, fig.height=7.5, fig.width=6.5}
-s=1:15 # Selection of subjects
+```{r Plot: HRF interventions, fig.height=7, fig.width=5.5, message=FALSE, warning=TRUE}
+s=1:20 # Selection of subjects
 ix=50:110 # start is set to stimulus onset at 5s
 l=length(s)*length(ix)
-#int=as.factor(c(rep(0,l), rep(1,l), rep(2,l), rep(3,l), rep(4,l), rep(5,l), rep(6,l)))
-int=as.factor(c(rep("0 no",l), rep("1 0.4s",l), rep("2 0.8s",l), rep("3 1.1s",l), rep("4 1.4s",l), rep("5 1.6s",l), rep("6 1.8s",l)))
+
+# grouping variable for intervention type
+int=as.factor(c(rep("0 -",l), rep("1 0.4s",l), rep("2 0.8s",l), rep("3 1.1s",l), rep("4 1.4s",l), rep("5 1.6s",l), rep("6 1.8s",l)))
 
 img = readPNG(file.path(PATH_FIG, "fig-interventions-page001.png"))
 g = rasterGrob(img, interpolate=T)
-pA = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12)) + ggtitle('HRF shape intervention')
+pA = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=11)) + ggtitle('HRF shape intervention')
 
 pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~italic(r)),
-         title = "edge correlations") +
+         title = "node correlations", titleTextSize = 11) +
   xlab("Node pairs") + ylab("Dataset") + 
   scale_x_discrete(limits=c("1\n2","2\n3","3\n4", "4\n5", "1\n5")) +
   scale_y_discrete(limits=c("Sim1", "Sim22", "int0", "int1", "int2",
@@ -266,95 +272,173 @@ n=1
 x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
+# grouping of mean time to peak
+m=c(rep(table.S1[n,1],length(ix)*length(s)), rep(table.S1[n,2],length(ix)*length(s)),
+       rep(table.S1[n,3],length(ix)*length(s)), rep(table.S1[n,4],length(ix)*length(s)),
+       rep(table.S1[n,5],length(ix)*length(s)), rep(table.S1[n,6],length(ix)*length(s)),
+       rep(table.S1[n,7],length(ix)*length(s)))
 x=melt(x)
 x$int=int
-p1=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
-  ggtitle('node 1') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,],
-                                                    color="gray60")
+x$m=m
+p1=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() + 
+  ggtitle('node 1 lagging') + xlab("time (s)") + geom_vline(data = x, aes(xintercept = m, color=int)) +
+  theme(plot.title = element_text(size=11), legend.position="none")
 
 n=2
 x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
+# grouping of mean time to peak
+m=c(rep(table.S1[n,1],length(ix)*length(s)), rep(table.S1[n,2],length(ix)*length(s)),
+       rep(table.S1[n,3],length(ix)*length(s)), rep(table.S1[n,4],length(ix)*length(s)),
+       rep(table.S1[n,5],length(ix)*length(s)), rep(table.S1[n,6],length(ix)*length(s)),
+       rep(table.S1[n,7],length(ix)*length(s)))
 x=melt(x)
 x$int=int
+x$m=m
 p2=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
-  ggtitle('node 2') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+  ggtitle('node 2 rushing') + xlab("time (s)") + geom_vline(data = x, aes(xintercept = m, color=int)) +
+  theme(plot.title = element_text(size=11), legend.position="none")
+
+n=3
+x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
+        ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
+        ts.ssint6[ix,n,s])
+# grouping of mean time to peak
+m=c(rep(table.S1[n,1],length(ix)*length(s)), rep(table.S1[n,2],length(ix)*length(s)),
+       rep(table.S1[n,3],length(ix)*length(s)), rep(table.S1[n,4],length(ix)*length(s)),
+       rep(table.S1[n,5],length(ix)*length(s)), rep(table.S1[n,6],length(ix)*length(s)),
+       rep(table.S1[n,7],length(ix)*length(s)))
+x=melt(x)
+
+# visualization fix for node 3: shuffle nodes so that they intervention colors do not overlap
+f=as.factor(c("0 -", "1 0.4s", "2 0.8s", "3 1.1s", "4 1.4s", "5 1.6s", "6 1.8s"))
+f=f[sample(1:7)]
+tmp = rep(f, each=length(ix))
+x$int=tmp
+x$m=m
+p3=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
+  ggtitle('node 3') + xlab("time (s)") + geom_vline(data = x, aes(xintercept = m, color=int)) +
+  theme(plot.title = element_text(size=11), legend.position="none")
 
 n=4
 x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
+# grouping of mean time to peak
+m=c(rep(table.S1[n,1],length(ix)*length(s)), rep(table.S1[n,2],length(ix)*length(s)),
+       rep(table.S1[n,3],length(ix)*length(s)), rep(table.S1[n,4],length(ix)*length(s)),
+       rep(table.S1[n,5],length(ix)*length(s)), rep(table.S1[n,6],length(ix)*length(s)),
+       rep(table.S1[n,7],length(ix)*length(s)))
 x=melt(x)
 x$int=int
-p3=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
-  ggtitle('node 4') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+x$m=m
+p4=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
+  ggtitle('node 4 lagging') + xlab("time (s)") + geom_vline(data = x, aes(xintercept = m, color=int)) +
+  theme(plot.title = element_text(size=11), legend.position="none")
 
 n=5
 x=cbind(ts.ssint0[ix,n,s], ts.ssint1[ix,n,s], ts.ssint2[ix,n,s],
         ts.ssint3[ix,n,s], ts.ssint4[ix,n,s], ts.ssint5[ix,n,s],
         ts.ssint6[ix,n,s])
+# grouping of mean time to peak
+m=c(rep(table.S1[n,1],length(ix)*length(s)), rep(table.S1[n,2],length(ix)*length(s)),
+       rep(table.S1[n,3],length(ix)*length(s)), rep(table.S1[n,4],length(ix)*length(s)),
+       rep(table.S1[n,5],length(ix)*length(s)), rep(table.S1[n,6],length(ix)*length(s)),
+       rep(table.S1[n,7],length(ix)*length(s)))
 x=melt(x)
 x$int=int
-p4=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
-  ggtitle('node 5') + xlab("time (s)") + geom_vline(xintercept = table.S1[n,], color="gray60")
+x$m=m
+p5=ggplot(x, aes(x=Var1*TR, y=value, group=Var2, colour=int)) + geom_line() +
+  ggtitle('node 5 rushing') + xlab("time (s)") + geom_vline(data = x, aes(xintercept = m, color=int)) +
+  theme(plot.title = element_text(size=11))
 
 top=plot_grid(pA, pB, labels=c("A", "B"), ncol = 2, nrow = 1, rel_widths = c(0.8, 1))
-bot=plot_grid(p1, p2, p3, p4, labels=c("C"), ncol = 2, nrow = 2, rel_widths = c(1, 1))
+mid=plot_grid(p1, p2, p3, labels="C", ncol = 3, nrow = 1, rel_widths = c(1, 1, 1))
+bot=plot_grid(p4, p5, ncol = 2, nrow = 1, rel_widths = c(0.7, 1))
 
-plot_grid(top, bot, ncol=1, nrow=2, rel_heights = c(1, 1.5))
+plot_grid(top, mid, bot, ncol=1, nrow=3, rel_heights = c(1, 0.8, 0.8))
 
-# ggsave(path = PATH_FIG, "gfig-Intervention.png")
+ggsave(path = PATH_FIG, "Fig2.png")
 
 ```
 
 ## Plot: MDM vs. Patel 
-```{r Plot: MDM vs. Patel, message=FALSE, warning=TRUE, fig.height=5.5, fig.width=5.5}
+```{r Plot: MDM vs. Patel, fig.height=7.2, fig.width=5.5, message=FALSE, warning=TRUE}
 
-p1 = gplotMat(stats.mdm.sim1$adj, 'MDM', '%', hasColMap = F)
-p2 = gplotMat(stats.pat.sim1$adj, 'Patel', '%')
+p1 = gplotMat(stats.mdm.sim22$adj, 'MDM', '%', hasColMap = F, titleTextSize = 11)
+p2 = gplotMat(stats.pat.sim22$adj, 'Patel', '%', titleTextSize = 11)
+p4 = gplotMat(rmna(stats.mdm.sim22$adj_fdr), 'FDR=0.05', '%', hasColMap = F, axisTextSize = 11) +
+  theme(plot.title = element_text(size=11, face = "plain"))
+p5 = gplotMat(rmna(stats.pat.sim22$adj_fdr), 'FDR=0.05', '%', hasColMap = F, axisTextSize = 11) +
+  theme(plot.title = element_text(size=11, face = "plain"))
 
-d1 = data.frame(Percent = c(perf.mdm$sim1[,c(1,2)], perf.pat$sim1[,c(1,2)]),
-                Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
-                Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
-d1$gm = interaction(d1$Method, d1$Measure)
-p3 = ggplot(d1, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.4) +
-   geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.5, height = 0.1)) +
-  theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
-        panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
-        panel.grid.major.x = element_blank()) +
-  scale_x_discrete(name ="Sensitivity  Specificity",
-                   breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
-                   labels=c("MDM", "MDM", "Pat", "Pat"))+ ggtitle("stationary")
+p7 = gplotMat(stats.mdm.sim1$adj, 'MDM', '%', hasColMap = F, titleTextSize = 11, axisTextSize = 11)
+p8 = gplotMat(stats.pat.sim1$adj, 'Patel', '%', titleTextSize = 11, axisTextSize = 11)
 
-p4 = gplotMat(stats.mdm.sim22$adj, 'MDM', '%', hasColMap = F)
-p5 = gplotMat(stats.pat.sim22$adj, 'Patel', '%')
+p10 = gplotMat(rmna(stats.mdm.sim1$adj_fdr), 'FDR=0.05', '%', hasColMap = F, axisTextSize = 11) +
+  theme(plot.title = element_text(size=11, face = "plain"))
+p11 = gplotMat(rmna(stats.pat.sim1$adj_fdr), 'FDR=0.05', '%', hasColMap = F, axisTextSize = 11) +
+  theme(plot.title = element_text(size=11, face = "plain"))
 
-# maybe use melt
-d22 = data.frame(Percent = c(perf.mdm$sim22[,c(1,2)], perf.pat$sim22[,c(1,2)]),
-                 Method = c(rep("MDM", N * 2), rep("Patel", N * 2)),
-                 Measure = rep(c(rep("Sens", N), rep("Spec", N)), 2))
-d22$gm = interaction(d22$Method, d22$Measure)
-p6 = ggplot(d22, aes(x=gm, y=Percent, fill=NULL)) + geom_violin() + geom_boxplot(width=0.4) +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.5, height = 0.1)) +
-  theme(legend.position="none", text = element_text(size=10), axis.text = element_text(size=9),
-        panel.grid.major = element_line(colour = "gray80", linetype = "dotted"),
-        panel.grid.major.x = element_blank()) +
-  scale_x_discrete(name ="Sensitivity  Specificity",
-                   breaks=c("MDM.Sens","MDM.Spec","Patel.Sens", "Patel.Spec"),
-                   labels=c("MDM", "MDM", "Pat", "Pat")) + ggtitle("dynamic")
-top=plot_grid(p4, p5, p6, p1, p2, p3, labels=c("A", "", "B", "C", "", "D"), ncol = 3, nrow = 2, rel_widths = c(0.65, 1, 0.7))
+d22 = data.frame(Percent = c(perf.mdm$sim22[,1], perf.pat$sim22[,1]), Method = c(rep("MDM", N), rep("Patel", N)))
+p3 = ggplot(data=d22, aes(x=Method, y=Percent, fill=NULL, colour=Method)) + geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  theme(legend.position="none", text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "plain"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dotted"), 
+        panel.grid.major.x = element_blank())  + ggtitle("Sensitivity") + scale_y_continuous(breaks=seq(0,1,0.2))
 
-p7=gplotMat(rmna(stats.mdm.sim1$adj_fdr), 'MDM', '%', hasColMap = F, axisTextSize = 10)
-p8=gplotMat(rmna(stats.pat.sim1$adj_fdr), 'Patel', '%', axisTextSize = 10)
-p9=gplotMat(rmna(stats.mdm.sim22$adj_fdr), 'MDM', '%', hasColMap = F, axisTextSize = 10)
-p10=gplotMat(rmna(stats.pat.sim22$adj_fdr), 'Patel', '%', hasColMap = F, axisTextSize = 10)
+d22 = data.frame(Percent = c(perf.mdm$sim22[,2], perf.pat$sim22[,2]), Method = c(rep("MDM", N), rep("Patel", N)))
+p6 = ggplot(data=d22, aes(x=Method, y=Percent, fill=NULL, colour=Method)) + geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  theme(legend.position="none", text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "plain"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dotted"), 
+        panel.grid.major.x = element_blank())  + ggtitle("Specificity") + coord_cartesian(ylim = c(0, 1)) +
+  scale_y_continuous(breaks=seq(0,1,0.2))
 
-bot=plot_grid(p9, p10, p7, p8, labels=c("E", "", "F", ""), ncol = 4, nrow = 1, rel_widths = c(0.58, 0.58, 0.58, 1))
+d1 = data.frame(Percent = c(perf.mdm$sim1[,1], perf.pat$sim1[,1]), Method = c(rep("MDM", N), rep("Patel", N)))
+p9 = ggplot(data=d1, aes(x=Method, y=Percent, fill=NULL, colour=Method)) + geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  theme(legend.position="none", text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "plain"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dotted"), 
+        panel.grid.major.x = element_blank())  + ggtitle("Sensitivity") + scale_y_continuous(breaks=seq(0,1,0.2))
 
-plot_grid(top, bot, ncol=1, rel_heights = c(1, 0.42))
+d1 = data.frame(Percent = c(perf.mdm$sim1[,2], perf.pat$sim1[,2]), Method = c(rep("MDM", N), rep("Patel", N)))
+p12 = ggplot(data=d1, aes(x=Method, y=Percent, fill=NULL, colour=Method)) + geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  theme(legend.position="none", text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "plain"),
+        panel.grid.major = element_line(colour = "gray70", linetype = "dotted"), 
+        panel.grid.major.x = element_blank()) + ggtitle("Specificity") + coord_cartesian(ylim = c(0, 1)) +
+  scale_y_continuous(breaks=seq(0,1,0.2))
 
-# ggsave(path = PATH_FIG, "gfig-MDMvsPatel.png")
+a = plot_grid(p1, p2, p3,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = "A")
+b = plot_grid(p4, p5, NULL, p6, nrow=1, ncol=4, rel_widths = c(1, 1, 0.5, 1))
+c = plot_grid(p7, p8, p9,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = "B")
+d = plot_grid(p10, p11, NULL, p12, nrow=1, ncol=4, rel_widths = c(1, 1, 0.5, 1))
+plot_grid(a, b, c, d, ncol = 1, rel_heights = c(1, 1, 1, 1))
+
+ggsave(path = PATH_FIG, "Fig3.png")
+```
+## Common network
+Maximizing LPLs across datasets
+
+```{r Common network, fig.height=2, fig.width=2}
+# dim(mdm.sim22$models)
+# 1. sum all LPLs across subjects
+# 2. for each child node, maximize across models
+idx = apply(apply(mdm.sim22$models[Nn+1,,,], c(1,2), sum), 2, which.max)
+
+# create network matrix
+M = array(0, dim=c(Nn, Nn))
+for (n in 1:Nn) {
+  M[mdm.sim22$models[2:Nn,idx[n],n,1], n] = 1
+}
+
+gplotMat(M, title = "Common net", hasColMap = F)
 ```
 
 ## Loading MDM of 7 HRF datasets 
@@ -521,7 +605,7 @@ perf.mdm$null = perf(am, xtrue)
 
 
 ## Plot: MDM sensitivity and specificity for the 7 HRF datasets 
-```{r Plot: MDM sensitivity and specificity for the 7 HRF datasets, fig.height=4, fig.width=3, message=FALSE}
+```{r Plot: MDM sensitivity and specificity for the 7 HRF datasets, fig.height=2, fig.width=6, message=FALSE, warning=TRUE}
 sel=1 # selection of perf measure, 1 sensitivity, 2 specificity
 myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel], 
                              perf.mdm$int2[,sel], perf.mdm$int3[,sel],
@@ -537,14 +621,15 @@ myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel],
                    rep(median(perf.mdm$int6[,sel]), N), rep(median(perf.mdm$null[,sel]), N)
                    )
                  )
-p1 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(width=0.2) +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07)) +
-  geom_line(aes(x=as.numeric(Method), y=Med), size=0.3) + 
-  coord_cartesian(ylim = c(0, 1)) +
-  ggtitle('Sensitivity') + 
-  xlab("HRF shape intervention") +
-  theme(panel.grid.major = element_line(colour = "gray70", linetype = "dotted"),
-        panel.grid.major.x = element_blank(), axis.text = element_text(size=10))
+
+p1 = ggplot(myd, aes(x=Method, y=Percent)) +  geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  geom_line(aes(x=as.numeric(Method), y=Med), size=0.5, color=2) + 
+  coord_cartesian(ylim = c(0, 1)) + ggtitle('Sensitivity') + xlab("Hemodynamic intervention") +
+  theme(legend.position="none", panel.grid.major = element_line(colour = "gray70", linetype = "dotted"),
+        panel.grid.major.x = element_blank(), text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "bold")) +
+  scale_y_continuous(breaks=seq(0,1,0.2))
 
 sel=2 # selection of perf measure, 1 sensitivity, 2 specificity
 myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel], 
@@ -561,17 +646,18 @@ myd = data.frame(Percent = c(perf.mdm$int0[,sel], perf.mdm$int1[,sel],
                    rep(median(perf.mdm$int6[,sel]), N), rep(median(perf.mdm$null[,sel]), N)
                    )
                  )
-p2 = ggplot(myd, aes(x=Method, y=Percent)) +   geom_violin() +  geom_boxplot(width=0.4) +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07)) +
-  geom_line(aes(x=as.numeric(Method), y=Med), size=0.3) + 
-  coord_cartesian(ylim = c(0, 1)) +
-  ggtitle('Specificity') + 
-  xlab("HRF shape intervention") +
-  theme(panel.grid.major = element_line(colour = "gray70", linetype = "dotted"),
-        panel.grid.major.x = element_blank(), axis.text = element_text(size=10))
 
-plot_grid(p1, p2, ncol=1, nrow=2)
-# ggsave(path = PATH_FIG, "gfig-7IntSensSpec.png")
+p2 = ggplot(myd, aes(x=Method, y=Percent)) +  geom_boxplot() +
+  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.3, height = 0.03)) +
+  geom_line(aes(x=as.numeric(Method), y=Med), size=0.5, color=2) + 
+  coord_cartesian(ylim = c(0, 1)) + ggtitle('Specificity') + xlab("Hemodynamic intervention") +
+  theme(legend.position="none", panel.grid.major = element_line(colour = "gray70", linetype = "dotted"),
+        panel.grid.major.x = element_blank(), text = element_text(size=11), axis.text = element_text(size=10),
+        plot.title = element_text(size=11, face = "bold")) +
+  scale_y_continuous(breaks=seq(0,1,0.2))
+
+plot_grid(p1, p2, ncol=2, nrow=1)
+ggsave(path = PATH_FIG, "Fig4.png")
 ```
 ## Median Sensitivity and Specificity corresponding to above figure
 ```{r Median Sensitivity and Specificity corresponding to abvove figure}
