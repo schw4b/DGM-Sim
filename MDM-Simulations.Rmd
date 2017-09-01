@@ -612,8 +612,6 @@ for (s in 1:N) {
 summary(R[rmna(xtrue)==1])
 summary(R[rmna(xtrue) + t(rmna(xtrue))==0])
 
-
-
 am = R > 0.3
 
 # threshold these correlation matrices from null network, or
@@ -640,9 +638,25 @@ for (s in 1:N) {
   }
 }
 
-
 perf.mdm$null = perf(am, xtrue)
 ```
+
+## d-accuracy
+```{r}
+x = array(c(sum(mdm.sim1$tam[rmna(xtrue)==1])/(Nn*N),
+            sum(mdm.sim22$tam[rmna(xtrue)==1])/(Nn*N),
+            sum(patel.sim1$net[rmna(xtrue)==1])/(Nn*N),
+            sum(patel.sim22$net[rmna(xtrue)==1])/(Nn*N),
+            sum(am[rmna(xtrue)==1])/(Nn*N),
+            sum(am[rmna(xtrue)==1])/(Nn*N)),
+          dim=c(2,3))
+
+colnames(x) <- c("MDM", "Patel", "null")
+rownames(x) <- c("Sim1", "Sim22")
+print(x, digits = 3)
+```
+
+
 
 
 ## Plot: MDM sensitivity and specificity for the 7 HRF datasets 
