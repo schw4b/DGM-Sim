@@ -1,7 +1,7 @@
 ---
 title: "MDM-Simulations"
 author: "Simon Schwab"
-date: "7 Jun 2017"
+date: "1 Sep 2017"
 output: html_document
 ---
 
@@ -19,9 +19,11 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("devtools")
 # install.packages("R.matlab")
 # install.packages("testit")
+# install.packages("testthat")
 # install.packages("RColorBrewer")
 # install.packages("cowplot")
 # install.packages("png")
+# install.packages("RcppArmadillo")
 ```
 
 ## Load libraries 
@@ -35,7 +37,6 @@ library(png)
 library(grid)
 ```
 
-## Install and load multdyn 
 ```{r Install multdyn, message=FALSE}
 # install_github("schw4b/multdyn", ref = "develop")
 # library(multdyn)
@@ -50,9 +51,10 @@ load_all('~/workspace/multdyn')
 N=50 # Number of simulated subjects/datasets
 Nn=5 # Number of nodes
 PATH_HOME = "/home/simon"
-PATH_PROJ = file.path(PATH_HOME, "Dropbox", "Data", "MDM-Sim")  # Project path
-PATH_FIG  = file.path(PATH_PROJ, 'figures') # path where figures will be stored
-PATH_DATA = file.path(PATH_PROJ, 'data') # path where time series data is stored
+PATH = file.path(PATH_HOME, "Dropbox", "Data", "MDM")  # Project path
+PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
+PATH_DATA = file.path(PATH, 'MDM-Sim', 'data') # path where time series data is
+PATH_RES = file.path(PATH, 'MDM-Sim') # path where MDM data is 
 ```
 
 ## Loading time series of Sim1 and Sim22 
@@ -67,6 +69,7 @@ d = readMat(file.path(PATH_DATA,'sim22.mat'))
 ts.sim22 = reshapeTs(d$ts,N,S)
 ```
 
+
 ## Loading time series from 7 HRF intervention datasets 
 ```{r Loading time series from 7 HRF intervention datasets}
 ts.int0 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1.mat'))$gfy2s
@@ -77,6 +80,33 @@ ts.int4 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24.mat'))
 ts.int5 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28.mat'))$gfy2s
 ts.int6 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$gfy2s
 ```
+
+## Plot timeseries of random subject
+```{r Plot random timeseries, fig.height=8, fig.width=10}
+t = 1:50 # interval to plot
+s = sample(N,1) # random subject
+vn = c("time", "node")
+d=list()
+d[[1]] = melt(ts.sim1[t,,s], varnames = vn)
+d[[2]] = melt(ts.sim22[t,,s],varnames = vn)
+d[[3]] = melt(ts.int0[t,,s], varnames = vn)
+d[[4]] = melt(ts.int1[t,,s], varnames = vn)
+d[[5]] = melt(ts.int2[t,,s], varnames = vn)
+d[[6]] = melt(ts.int3[t,,s], varnames = vn)
+d[[7]] = melt(ts.int4[t,,s], varnames = vn)
+d[[8]] = melt(ts.int5[t,,s], varnames = vn)
+d[[9]] = melt(ts.int6[t,,s], varnames = vn)
+
+p=list()
+str_int = c("sim1", "sim22", "int0", "int1", "int2", "int3", "int4", "int5", "int6")
+for (i in 1:length(d)) {
+  p[[i]] = ggplot(d[[i]], aes(x = time, y = value, group=node, color=as.factor(node))) + geom_line() +
+    theme_minimal() + ggtitle(str_int[i]) + scale_color_discrete(name = "node")
+}
+
+plot_grid(plotlist = p, ncol = 2, nrow = 5, rel_widths = c(1, 1))
+```
+
 ## Load time series data from single spike simulations 
 ```{r Loame series data from single spike simulations}
 ts.ssint0 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj0_F1.mat"))$gfy2s
@@ -87,18 +117,22 @@ ts.ssint4 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1
 ts.ssint5 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F28.mat"))$gfy2s
 ts.ssint6 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F32.mat"))$gfy2s
 ```
+
 ## Generate true network 
 ```{r Generate true network}
 xtrue=array(NA,dim=c(5,5))
 xtrue[1,2] = xtrue[2,3] = xtrue[3,4] = xtrue[4,5] = xtrue[1,5] = 1
 ```
 
-## Signal change
+## Signal SD
 ```{r Signal change}
-apply(ts.int0[,,1], 2, sd)
-
+SD=array(NA, dim=c(N,Nn))
+for (i in 1:N) {
+  SD[i,]= apply(ts.int0[,,i], 2, sd)
+}
+colMeans(SD)
 ```
-
+As expected variability decreases from node 1 to node 4 with node 5 having higher variability.
 
 ## Pearson's correlations of the nodes 
 ```{r}
@@ -114,7 +148,12 @@ R[8,] = corTs(ts.int5)[rmna(xtrue)==1]
 R[9,] = corTs(ts.int6)[rmna(xtrue)==1]
 
 idx = c(1,2,3,5,4) # move connection 1->5 to last column
-#print(R[,idx])
+print(R[,idx])
+```
+Means across interventions 0-7
+```{r}
+mean(R[3:9,idx])
+colMeans(R[3:9,idx])
 ```
 ## Supplementary Table S1: Time to peak of single spikes 
 ```{r Supplementary Table S1: Time to peak of single spikes}
@@ -151,13 +190,13 @@ print(array(as.numeric(sprintf("%.2f", table.S1sd)), dim=c(Nn, 7)))
 ```{r Loading MDM data from Sim1 and Sim22}
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'sim1'), sprintf("Id_%03d",s), Nn)
+  subj[[s]] = read.subject(file.path(PATH_RES,'sim1'), sprintf("Id_%03d",s), Nn)
 }
 mdm.sim1=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'sim22'), sprintf("Id_%03d",s), Nn)
+  subj[[s]] = read.subject(file.path(PATH_RES,'sim22'), sprintf("Id_%03d",s), Nn)
 }
 mdm.sim22=mdm.group(subj)
 ```
@@ -199,19 +238,18 @@ perf.mdm$sim22 = perf(mdm.sim22$tam, xtrue)
 perf.pat$sim1  = perf(patel.sim1$net, xtrue)
 perf.pat$sim22 = perf(patel.sim22$net, xtrue)
 
-## Median Sensitivity, specificity and accuracy for MDM and Patel's
-apply(perf.mdm$sim22[,c(1,2,8)], 2, median)
-apply(perf.pat$sim22[,c(1,2,8)], 2, median)
-
-apply(perf.mdm$sim1[,c(1,2,8)], 2, median)
-apply(perf.pat$sim1[,c(1,2,8)], 2, median)
-
+# Median Sensitivity, specificity and accuracy for MDM and Patel's
+x=array(c(apply(perf.mdm$sim22[,c(1,2,8)], 2, median),
+        apply(perf.pat$sim22[,c(1,2,8)], 2, median),
+        apply(perf.mdm$sim1[,c(1,2,8)], 2, median),
+        apply(perf.pat$sim1[,c(1,2,8)], 2, median)), dim = c(3,4))
+rownames(x) <- c("Sensitvity", "Specificity", "Accuracy")
+colnames(x) <- c("MDM Sim22", "Patel Sim22", "MDM Sim1", "Patel Sim1")
+print(x, digits = 2)
 ```
 
 ## Plot: True network and correlation matrix 
 ```{r True network and correlation matrix, fig.height=4, fig.width=7, message=FALSE, warning=TRUE}
-
-# computational complexity
 
 comput=data.frame(nodes = as.factor(c(3,4,5,6,7,8,9,10,11,12,13,15,20,25)),
                   time= c(0.2, 0.5, 1, 2.2, 4.8, 10, 22, 48, 60+46, 3*60+44,
@@ -415,14 +453,37 @@ p12 = ggplot(data=d1, aes(x=Method, y=Percent, fill=NULL, colour=Method)) + geom
         panel.grid.major.x = element_blank()) + ggtitle("Specificity") + coord_cartesian(ylim = c(0, 1)) +
   scale_y_continuous(breaks=seq(0,1,0.2))
 
-a = plot_grid(p1, p2, p3,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = "A")
+a = plot_grid(p1, p2, p3,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = c("A", "", "B"))
 b = plot_grid(p4, p5, NULL, p6, nrow=1, ncol=4, rel_widths = c(1, 1, 0.5, 1))
-c = plot_grid(p7, p8, p9,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = "B")
+c = plot_grid(p7, p8, p9,    nrow=1, ncol=3, rel_widths = c(0.65, 1, 0.65), labels = c("C", "", "D"))
 d = plot_grid(p10, p11, NULL, p12, nrow=1, ncol=4, rel_widths = c(1, 1, 0.5, 1))
 plot_grid(a, b, c, d, ncol = 1, rel_heights = c(1, 1, 1, 1))
 
 ggsave(path = PATH_FIG, "Fig3.png")
 ```
+## Proportions
+### Dynamic data:
+```{r}
+# MDM
+rmna(stats.mdm.sim22$adj)
+summary(stats.mdm.sim22$adj[xtrue==1], na.rm = T)
+
+# Patel
+rmna(stats.pat.sim22$adj)
+summary(stats.pat.sim22$adj[xtrue==1], na.rm = T)
+```
+### Stationary data:
+```{r}
+# MDM
+rmna(stats.mdm.sim1$adj)
+summary(stats.mdm.sim1$adj[xtrue==1], na.rm = T)
+
+# Patel
+rmna(stats.pat.sim1$adj)
+summary(stats.pat.sim1$adj[xtrue==1], na.rm = T)
+```
+
+
 ## Common network
 Maximizing LPLs across datasets
 
@@ -445,49 +506,49 @@ gplotMat(M, title = "Common net", hasColMap = F)
 ```{r Loading MDM of 7 HRF datasets}
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int0=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int1=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int2=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int3=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int4=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int5=mdm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_PROJ,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
+  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
                            sprintf("Id_%03d",s), Nn)
 }
 mdm.int6=mdm.group(subj)
@@ -497,44 +558,24 @@ mdm.int6=mdm.group(subj)
 ## Investigate discount factor
 ```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
 node=as.factor(c(rep(1,N),rep(2,N),rep(3,N),rep(4,N),rep(5,N)))
-d1=data.frame(df=c(mdm.sim1$df_),  node=node)
-d2=data.frame(df=c(mdm.sim22$df_), node=node)
-d3=data.frame(df=c(mdm.int0$df_),  node=node)
-d4=data.frame(df=c(mdm.int1$df_),  node=node)
-d5=data.frame(df=c(mdm.int2$df_),  node=node)
-d6=data.frame(df=c(mdm.int3$df_),  node=node)
-d7=data.frame(df=c(mdm.int4$df_),  node=node)
-d8=data.frame(df=c(mdm.int5$df_),  node=node)
-d9=data.frame(df=c(mdm.int6$df_),  node=node)
+d = list()
+d[[1]]=data.frame(df=c(mdm.sim1$df_),  node=node)
+d[[2]]=data.frame(df=c(mdm.sim22$df_), node=node)
+d[[3]]=data.frame(df=c(mdm.int0$df_),  node=node)
+d[[4]]=data.frame(df=c(mdm.int1$df_),  node=node)
+d[[5]]=data.frame(df=c(mdm.int2$df_),  node=node)
+d[[6]]=data.frame(df=c(mdm.int3$df_),  node=node)
+d[[7]]=data.frame(df=c(mdm.int4$df_),  node=node)
+d[[8]]=data.frame(df=c(mdm.int5$df_),  node=node)
+d[[9]]=data.frame(df=c(mdm.int6$df_),  node=node)
 
-p1 = ggplot(d1, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Sim1") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07))
+p = list()
+for (i in 1:9) {
+  p[[i]] = ggplot(d[[i]], aes(x=node, y=df)) + geom_boxplot(width=0.4) + ggtitle(str_int[i]) +
+    geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
+}
   
-p2 = ggplot(d2, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Sim22") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.07))
-
-p3 = ggplot(d3, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int0") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p4 = ggplot(d4, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int1") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p5 = ggplot(d5, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int2") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p6 = ggplot(d6, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int3") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p7 = ggplot(d7, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int4") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p8 = ggplot(d8, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int5") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-p9 = ggplot(d9, aes(x=node, y=df)) + geom_violin() + geom_boxplot(width=0.4) + ggtitle("Int6") +
-  geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.4, height = 0.05))
-
-plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3, nrow = 3)
+plot_grid(plotlist = p, ncol = 3, nrow = 3)
 
 ```
 
@@ -661,11 +702,13 @@ ggsave(path = PATH_FIG, "Fig4.png")
 ```
 ## Median Sensitivity and Specificity corresponding to above figure
 ```{r Median Sensitivity and Specificity corresponding to abvove figure}
-# Sensitivity
-c(median(perf.mdm$int0[,1]), median(perf.mdm$int1[,1]), median(perf.mdm$int2[,1]), median(perf.mdm$int3[,1]),
-  median(perf.mdm$int4[,1]), median(perf.mdm$int5[,1]), median(perf.mdm$int6[,1]), median(perf.mdm$null[,1]))
 
-# Specificity
-c(median(perf.mdm$int0[,2]), median(perf.mdm$int1[,2]), median(perf.mdm$int2[,2]), median(perf.mdm$int3[,2]),
-  median(perf.mdm$int4[,2]), median(perf.mdm$int5[,2]), median(perf.mdm$int6[,2]), median(perf.mdm$null[,2]))
+x = array(c(median(perf.mdm$int0[,1]), median(perf.mdm$int1[,1]), median(perf.mdm$int2[,1]), median(perf.mdm$int3[,1]), # Sensitivity
+            median(perf.mdm$int4[,1]), median(perf.mdm$int5[,1]), median(perf.mdm$int6[,1]), median(perf.mdm$null[,1]),
+            median(perf.mdm$int0[,2]), median(perf.mdm$int1[,2]), median(perf.mdm$int2[,2]), median(perf.mdm$int3[,2]), # Specificity
+            median(perf.mdm$int4[,2]), median(perf.mdm$int5[,2]), median(perf.mdm$int6[,2]), median(perf.mdm$null[,2])
+            ), dim=c(8,2))
+colnames(x) <- c("Sensitvity", "Specificity")
+rownames(x) <- c(str_int[3:9], "null")
+print(x, digits = 2)
 ```
