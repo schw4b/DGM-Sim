@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "19 Sep 2017"
+date: "20 Sep 2017"
 output: html_document
 ---
 
@@ -55,8 +55,8 @@ Nn=5 # Number of nodes
 PATH_HOME = "/home/simon"
 PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM")  # Project path
 PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
-PATH_DATA = file.path(PATH, 'DGM-Sim', 'data') # path where time series data is
-PATH_RES = file.path(PATH, 'DGM-Sim') # path where DGM data is 
+PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series data is
+PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is 
 ```
 
 ## Estimate networks
@@ -72,22 +72,22 @@ PATH_RES = file.path(PATH, 'DGM-Sim') # path where DGM data is
 # Downloaded from http://www.fmrib.ox.ac.uk/datasets/netsim/
 S=200 # No of samples for Sim1 and Sim22
 
-d = readMat(file.path(PATH_DATA,'sim1.mat'))
+d = readMat(file.path(PATH_TS,'sim1.mat'))
 ts.sim1 = reshapeTs(d$ts,N,S)
 
-d = readMat(file.path(PATH_DATA,'sim22.mat'))
+d = readMat(file.path(PATH_TS,'sim22.mat'))
 ts.sim22 = reshapeTs(d$ts,N,S)
 
-ts.int0 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1.mat'))$gfy2s
-ts.int1 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
-ts.int2 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16.mat'))$gfy2s
-ts.int3 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20.mat'))$gfy2s
-ts.int4 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24.mat'))$gfy2s
-ts.int5 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28.mat'))$gfy2s
-ts.int6 = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$gfy2s
+ts.int0 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1.mat'))$gfy2s
+ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
+ts.int2 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16.mat'))$gfy2s
+ts.int3 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20.mat'))$gfy2s
+ts.int4 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24.mat'))$gfy2s
+ts.int5 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28.mat'))$gfy2s
+ts.int6 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$gfy2s
 
 # Very long 60 min sumulation
-ts.long = readMat(file.path(PATH_DATA,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min.mat'))$gfy2s
+ts.long = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min.mat'))$gfy2s
 ```
 
 ### Plot timeseries of random subject
@@ -119,13 +119,13 @@ plot_grid(plotlist = p, ncol = 2, nrow = 5, rel_widths = c(1, 1))
 
 ### Load time series data (single spike)
 ```{r}
-ts.ssint0 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj0_F1.mat"))$gfy2s
-ts.ssint1 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F13.mat"))$gfy2s
-ts.ssint2 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F16.mat"))$gfy2s
-ts.ssint3 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F20.mat"))$gfy2s
-ts.ssint4 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F24.mat"))$gfy2s
-ts.ssint5 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F28.mat"))$gfy2s
-ts.ssint6 = readMat(file.path(PATH_DATA, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F32.mat"))$gfy2s
+ts.ssint0 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj0_F1.mat"))$gfy2s
+ts.ssint1 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F13.mat"))$gfy2s
+ts.ssint2 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F16.mat"))$gfy2s
+ts.ssint3 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F20.mat"))$gfy2s
+ts.ssint4 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F24.mat"))$gfy2s
+ts.ssint5 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F28.mat"))$gfy2s
+ts.ssint6 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F32.mat"))$gfy2s
 ```
 
 ## Generate true network 
@@ -267,25 +267,25 @@ colMeans(R[3:9,idx])
 ```{r}
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'sim1'), sprintf("Id_%03d",s), Nn)
+  subj[[s]] = read.subject(file.path(PATH_NET,'sim1'), sprintf("Id_%03d",s), Nn)
 }
 dgm.sim1=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'sim22'), sprintf("Id_%03d",s), Nn)
+  subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn)
 }
 dgm.sim22=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'sim22'), sprintf("Id_%03d",s), Nn, e = 26)
+  subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn, e = 26)
 }
 dgm.sim22_e26=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min'), sprintf("Id_%03d",s), Nn)
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min'), sprintf("Id_%03d",s), Nn)
 }
 dgm.long=dgm.group(subj)
 ```
@@ -566,49 +566,49 @@ gplotMat(M, title = "Common net", hasColMap = F)
 ```{r}
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int0=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int1=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int2=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int3=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int4=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int5=dgm.group(subj)
 
 subj=list()
 for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_RES,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
+  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
                            sprintf("Id_%03d",s), Nn)
 }
 dgm.int6=dgm.group(subj)
