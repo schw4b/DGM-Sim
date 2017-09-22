@@ -430,6 +430,12 @@ M[3,] = colSums(abs(x[c(T,F,F,F,T),]))
 print(M[,2:7], digits = 3)
 ```
 
+Mean cross the three edges
+```{r}
+print(colMeans(M[,2:7]), digits = 2)
+```
+
+
 
 ## Data preparation for Figure 2
 For demonstration purposes, we need to the the time series of the subject closest to the mean peak, for each node, and each intervention strength.
@@ -480,7 +486,7 @@ pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~it
             title = "node correlations", titleTextSize = 12) + xlab("Node pairs") +
   ylab("Dataset") + scale_x_discrete(limits=c("1\n2","2\n3","3\n4", "4\n5", "1\n5")) +
   scale_y_discrete(limits=c("Sim1", "Sim22", "60min.","<0.4s", "0.4s", "0.8s",
-                            "1.1s", "1.4s", "1.6s", "1.8s")) +
+                            "1.1s", "1.4s", "1.7s", "1.9s")) +
   theme(axis.text.y = element_text(size=11))
 
 l=length(ix)
