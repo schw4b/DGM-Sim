@@ -485,8 +485,8 @@ pA = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12))
 pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~italic(r)),
             title = "node correlations", titleTextSize = 12) + xlab("Node pairs") +
   ylab("Dataset") + scale_x_discrete(limits=c("1\n2","2\n3","3\n4", "4\n5", "1\n5")) +
-  scale_y_discrete(limits=c("Sim1", "Sim22", "60min.","<0.4s", "0.4s", "0.8s",
-                            "1.1s", "1.4s", "1.7s", "1.9s")) +
+  scale_y_discrete(limits=c("Sim1", "Sim22", "60 min.","< 0.4 s", "0.4 s", "0.8 s",
+                            "1.1 s", "1.4 s", "1.7 s", "1.9 s")) +
   theme(axis.text.y = element_text(size=11))
 
 l=length(ix)
