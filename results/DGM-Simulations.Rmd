@@ -40,9 +40,6 @@ library(grid)
 
 ### Load multdyn
 ```{r}
-# install_github("schw4b/multdyn", ref = "develop")
-# library(multdyn)
-
 # I'm using my local development branch
 library(devtools)
 load_all('~/workspace/multdyn')
@@ -382,7 +379,7 @@ rmna(stats.pat.sim1$adj)
 summary(stats.pat.sim1$adj[xtrue==1], na.rm = T)
 ```
 
-## Supplementary Table S1: Time to peak of single spikes 
+## Supplementary Table S1: time to peak
 ```{r}
 TR=0.1 # This data has a TR of 0.1
 STIM_ONSET=5 # 5 sec.
@@ -412,6 +409,27 @@ print(array(as.numeric(sprintf("%.2f", table.S1)), dim=c(Nn, 7)))
 # SD
 print(array(as.numeric(sprintf("%.2f", table.S1sd)), dim=c(Nn, 7)))
 ```
+## Supplementary Table S2: offset relative to first simulation
+```{r}
+print(table.S1-table.S1[,1], digits = 2)
+```
+## Supplementary Table S3: total offset
+```{r}
+M = array(NA, dim=c(3,7))
+x=table.S1-table.S1[,1]
+
+# 1 and 2
+M[1,] = colSums(abs(x[c(T,T,F,F,F),]))
+
+# 4 and 5
+M[2,] = colSums(abs(x[c(F,F,F,T,T),]))
+
+# 1 and 5
+M[3,] = colSums(abs(x[c(T,F,F,F,T),]))
+
+print(M[,2:7], digits = 3)
+```
+
 
 ## Data preparation for Figure 2
 For demonstration purposes, we need to the the time series of the subject closest to the mean peak, for each node, and each intervention strength.
