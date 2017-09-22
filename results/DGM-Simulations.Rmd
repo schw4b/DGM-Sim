@@ -490,8 +490,8 @@ pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~it
   theme(axis.text.y = element_text(size=11))
 
 l=length(ix)
-offset=as.factor(c(rep("<0.4s",l), rep("0.4s",l), rep("0.8s",l), rep("1.1s",l),
-                   rep("1.4s",l), rep("1.6s",l), rep("1.8s",l)))
+offset=as.factor(c(rep("< 0.4 s",l), rep("0.4 s",l), rep("0.8 s",l), rep("1.1 s",l),
+                   rep("1.4 s",l), rep("1.7 s",l), rep("1.9 s",l)))
 
 p=list()
 mylegend = c(rep("none",4), "right")
