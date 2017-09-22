@@ -1,5 +1,5 @@
 ---
-title: "MDM-RSN10"
+title: "DGM-RSN10"
 author: "Simon Schwab"
 date: "22 Sep 2017"
 output: html_document
