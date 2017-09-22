@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "20 Sep 2017"
+date: "22 Sep 2017"
 output: html_document
 ---
 
@@ -519,7 +519,7 @@ pA2=ggplot(melt(table.perf[1:3,c(2,7)]), aes(x=Var2, y=value, fill=Var1)) +
   theme(axis.title.x=element_blank(), axis.text.x = element_text(size=10)) +
   scale_fill_brewer(palette="Set1")
 
-pTop = plot_grid(pA1, pA2,  nrow=1, ncol=2, rel_widths = c(0.8, 1), labels = "A") +
+pTop = plot_grid(pA1, pA2,  nrow=1, ncol=2, rel_widths = c(0.95, 1), labels = "A") +
   theme(plot.margin = unit(c(s, 0, s, 0), "cm"))
 
 pB1 = gplotMat(stats.dgm.sim22$adj, 'DGM', '%', hasColMap = F, titleTextSize = 12)
@@ -783,6 +783,8 @@ colnames(res) <- c("<0.4s", "0.4s", "0.8s", "1.1s", "1.4s", "1.6s", "1.8s")
 rownames(res) <- c("Sensitivity", "Specificity")
 
 print(res)
+
+summary(t(res))
 ```
 
 ## Figure 4: DGM sensitivity and specificity for the 7 HRF datasets 
