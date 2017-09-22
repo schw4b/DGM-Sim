@@ -132,24 +132,27 @@ d.r3=melt(mdm.net10.r3$df_)
 d.r4=melt(mdm.net10.r4$df_)
 
 
-p1 = ggplot(d.r1, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
+p1 = ggplot(d.r1, aes(x=as.factor(Var2), y=value)) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_boxplot(width=0.6) +
   ggtitle(sprintf("Run 1", N)) + ylab("df") + xlab("node")
 
-p2 = ggplot(d.r2, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
+p2 = ggplot(d.r2, aes(x=as.factor(Var2), y=value)) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_boxplot(width=0.6) +
   ggtitle(sprintf("Run 2", N)) + ylab("df") + xlab("node")
 
-p3 = ggplot(d.r3, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
+p3 = ggplot(d.r3, aes(x=as.factor(Var2), y=value)) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_boxplot(width=0.6) +
   ggtitle(sprintf("Run 3", N)) + ylab("df") + xlab("node")
 
-p4 = ggplot(d.r4, aes(x=as.factor(Var2), y=value)) + geom_violin() + geom_boxplot(width=0.2) +
+p4 = ggplot(d.r4, aes(x=as.factor(Var2), y=value)) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_boxplot(width=0.6) +
   ggtitle(sprintf("Run 4", N)) + ylab("df") + xlab("node")
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
-
 ```
 
 ## Load time series data
