@@ -1,8 +1,9 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "22 Sep 2017"
-output: html_document
+date: "25 Sep 2017"
+output:
+  html_notebook: default
 ---
 
 ## Packages and main variables
@@ -17,18 +18,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Install required packages 
 ```{r}
-# install.packages("devtools")
+# install.packages("multdyn")
 # install.packages("R.matlab")
-# install.packages("testit")
-# install.packages("testthat")
-# install.packages("RColorBrewer")
 # install.packages("cowplot")
 # install.packages("png")
-# install.packages("RcppArmadillo")
+# install.packages("grid")
 ```
 
 ### Load libraries 
 ```{r, message=FALSE}
+library(multdyn)
 library(R.matlab)
 library(testit)
 library(ggplot2)
@@ -36,13 +35,6 @@ library(cowplot)
 library(reshape2)
 library(png)
 library(grid)
-```
-
-### Load multdyn
-```{r}
-# I'm using my local development branch
-library(devtools)
-load_all('~/workspace/multdyn')
 ```
 
 ### Main variables 

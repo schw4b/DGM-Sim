@@ -1,8 +1,9 @@
 ---
 title: "DGM-RSN10"
 author: "Simon Schwab"
-date: "22 Sep 2017"
-output: html_document
+date: "25 Sep 2017"
+output:
+  html_notebook: default
 ---
 
 ## Install R Markdown 
@@ -16,32 +17,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Install required packages 
 ```{r install required packages}
-# install.packages("devtools")
+# install.packages("multdyn")
 # install.packages("testit")
 # install.packages("ggplot2")
 # install.packages("cowplot")
 # install.packages("reshape2")
 # install.packages("data.table")
-# install.packages("testthat")
 ```
 
 ## Load libraries 
 ```{r Load required libraries, message=FALSE}
-library(devtools)
-#library(testit)
+
+library(multdyn)
 library(ggplot2)
 library(cowplot)
 library(reshape2)
 library(data.table)
 library(testthat)
 library(testit)
-```
-
-## Install and load multdyn 
-```{r Install multdyn, message=FALSE}
-# I'm using my local development branch
-library(devtools)
-load_all('~/workspace/multdyn')
 ```
 
 ## Main variables 
@@ -263,12 +256,24 @@ plot_grid(p1, p2, p3, p4, ncol = 1, nrow = 4, rel_widths = c(1, 1))
 
 ## Network consistency across subjects
 ```{r}
-
 stats.r1 = binom.nettest(mdm.net10.r1$am, alter = "greater")
 stats.r2 = binom.nettest(mdm.net10.r2$am, alter = "greater")
 stats.r3 = binom.nettest(mdm.net10.r3$am, alter = "greater")
 stats.r4 = binom.nettest(mdm.net10.r4$am, alter = "greater")
 ```
+
+### No. of edges and % difference between e=0 and e=20
+```{r}
+x = c(sum(mdm.net10.r1$tam != mdm.net10.r1$am),
+      sum(mdm.net10.r2$tam != mdm.net10.r2$am),
+      sum(mdm.net10.r3$tam != mdm.net10.r3$am),
+      sum(mdm.net10.r4$tam != mdm.net10.r4$am)
+)
+print(x)
+print(x/(N*N_comp*(N_comp-1)))
+
+```
+
 
 ## Figure 5
 ```{r, fig.width=5.8, fig.height=9.8, message=FALSE}
