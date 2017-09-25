@@ -6,17 +6,8 @@ output:
   html_notebook: default
 ---
 
-## Install R Markdown 
-```{r Install R Markdown}
-# install.packages("rmarkdown")
-```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Install required packages 
-```{r install required packages}
+```{r}
 # install.packages("multdyn")
 # install.packages("testit")
 # install.packages("ggplot2")
@@ -26,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Load libraries 
-```{r Load required libraries, message=FALSE}
+```{r}
 
 library(multdyn)
 library(ggplot2)
@@ -38,7 +29,7 @@ library(testit)
 ```
 
 ## Main variables 
-```{r Main variables}
+```{r}
 PATH_HOME = "/home/simon"
 PATH_NET  = file.path(PATH_HOME, 'Drive', 'MDM_NetMats10_results')
 PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
@@ -85,7 +76,7 @@ summary(demog$Age)/N
 ```
 
 ## Loading network data
-```{r Loading network data}
+```{r}
 # subj_r1 = vector(mode = "list", length = N)
 # subj_r2 = vector(mode = "list", length = N)
 # subj_r3 = vector(mode = "list", length = N)
@@ -204,7 +195,7 @@ ggsave(path = PATH_FIG, "Sd_10RSNs.png")
 ```
 
 ## Correlation Plots
-```{r Correlation Plots, fig.height=4.7, fig.width=6.5, message=FALSE}
+```{r, fig.height=4.7, fig.width=6.5, message=FALSE}
 LIM=c(-0.65,0.65)
 
 p1 = gplotMat(rmdiag(corTs(ts[,,1,])), title=sprintf("Run 1", N), lim=LIM, nodeLabels = labels$Label,
@@ -231,7 +222,7 @@ plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_widths = c(1, 1))
 ```
 
 ## Plot example timeseries
-```{r Plot example timeseries, fig.height=8, fig.width=10}
+```{r, fig.height=8, fig.width=10}
 idx = 1:round(120/TR) # first 2 minutes
 
 # random sampling of subject s and nodes n
@@ -262,7 +253,7 @@ stats.r3 = binom.nettest(mdm.net10.r3$am, alter = "greater")
 stats.r4 = binom.nettest(mdm.net10.r4$am, alter = "greater")
 ```
 
-### No. of edges and % difference between e=0 and e=20
+### Difference between e=0 and e=20
 ```{r}
 x = c(sum(mdm.net10.r1$tam != mdm.net10.r1$am),
       sum(mdm.net10.r2$tam != mdm.net10.r2$am),
@@ -372,8 +363,7 @@ plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "", "", "B", ""),
 ggsave(path = PATH_FIG, "Fig6.png")
 ```
 
-## Clustering
-```{r Clustering}
+```{r Clustering, eval=FALSE, include=FALSE}
 # distance
 # d1 = dist(t(array(mdm.net10.r1$am, dim = c(N_comp*N_comp,N))), method = "binary")
 # d2 = dist(t(array(mdm.net10.r2$am, dim = c(N_comp*N_comp,N))), method = "binary")
@@ -414,6 +404,7 @@ grp4 = cutree(clust4, k = K)
 
 rbind(summary(as.factor(grp1)), summary(as.factor(grp2)), summary(as.factor(grp3)), summary(as.factor(grp4)))
 ```
+
 ```{r Clustering: Plot, eval=FALSE, fig.height=5, fig.width=7, include=FALSE}
 par(mfrow=c(2,2))
 plot(clust1)
@@ -421,7 +412,6 @@ plot(clust2)
 plot(clust3)
 plot(clust4)
 ```
-  
 
 ```{r Plot Clusters, eval=FALSE, fig.height=7, fig.width=8, include=FALSE}
 S = array(NaN, dim=c(N_comp,N_comp,K))

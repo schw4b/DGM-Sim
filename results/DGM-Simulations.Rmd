@@ -7,14 +7,6 @@ output:
 ---
 
 ## Packages and main variables
-### Install R Markdown 
-```{r}
-# install.packages("rmarkdown")
-```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ### Install required packages 
 ```{r}
