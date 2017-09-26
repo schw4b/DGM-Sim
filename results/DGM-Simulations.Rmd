@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "25 Sep 2017"
+date: "26 Sep 2017"
 output:
   html_notebook: default
 ---
@@ -10,11 +10,12 @@ output:
 
 ### Install required packages 
 ```{r}
+# install.packages("rmarkdown")
 # install.packages("multdyn")
 # install.packages("R.matlab")
 # install.packages("cowplot")
 # install.packages("png")
-# install.packages("grid")
+# install.packages("testit")
 ```
 
 ### Load libraries 
@@ -159,6 +160,13 @@ f=c(rep(1,8), rep(60,4),60^2, 60^2*24)
 x[2,]=x[2,]/f
 print(x, digits = 2)
 ```
+### Quick Bench of 8-node networks
+```{r}
+X=array(rnorm(1200*8), dim=c(1200,8))
+# system.time(exhaustive.search(X,1))[3]
+```
+
+
 
 ## Figure 1: True network and correlation matrix
 ```{r, fig.height=4, fig.width=6, message=FALSE, warning=TRUE}
@@ -624,7 +632,7 @@ dgm.int6=dgm.group(subj)
 
 
 ## Investigate discount factor
-```{r Plot: discount factor delta distribution per node, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
+```{r, message=FALSE, warning=TRUE, fig.height=5.2, fig.width=6.5}
 node=as.factor(c(rep(1,N),rep(2,N),rep(3,N),rep(4,N),rep(5,N)))
 d = list()
 d[[1]]=data.frame(df=c(dgm.sim1$df_),  node=node)
