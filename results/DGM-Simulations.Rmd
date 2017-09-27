@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "26 Sep 2017"
+date: "27 Sep 2017"
 output:
   html_notebook: default
 ---
@@ -653,6 +653,34 @@ for (i in 1:9) {
   
 plot_grid(plotlist = p, ncol = 3, nrow = 3)
 
+```
+
+### DFs with parents only
+
+```{r, fig.height=2, fig.width=4, warning=FALSE}
+x = t(apply(dgm.sim22$tam, 3, colSums)) # Subj x no. of parents
+df.22 = dgm.sim22$df_
+df.22[x == 0] = NA
+
+  p1 = ggplot(melt(df.22), aes(x=Var2, y=value, group=Var2)) + geom_boxplot(width=0.4) +
+    geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
+
+x = t(apply(dgm.int0$am, 3, colSums)) # Subj x no. of parents
+df.0 = dgm.int0$df_
+df.0[x == 0] = NA
+
+  p2 = ggplot(melt(df.0), aes(x=Var2, y=value, group=Var2)) + geom_boxplot(width=0.4) +
+    geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
+  
+plot_grid(p1, p2, ncol = 2, nrow = 1)
+```
+
+```{r}
+colMeans(df.22, na.rm = T)
+colMeans(df.0, na.rm = T)
+
+summary(colMeans(df.22, na.rm = T))
+summary(colMeans(df.0, na.rm = T))
 ```
 
 ## Stats for DGM 7 HRF datasets 

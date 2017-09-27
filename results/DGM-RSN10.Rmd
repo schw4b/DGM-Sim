@@ -1,7 +1,7 @@
 ---
 title: "DGM-RSN10"
 author: "Simon Schwab"
-date: "26 Sep 2017"
+date: "27 Sep 2017"
 output:
   html_notebook: default
 ---
@@ -136,6 +136,25 @@ p4 = ggplot(d.r4, aes(x=as.factor(Var2), y=value)) +
   ggtitle(sprintf("Run 4", N)) + ylab("df") + xlab("node")
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
+```
+
+### DFs with parents only
+
+```{r, fig.height=2, fig.width=4}
+df.10r1 = mdm.net10.r1$df_
+df.10r2 = mdm.net10.r2$df_
+df.10r3 = mdm.net10.r3$df_
+df.10r4 = mdm.net10.r4$df_
+
+df.10r1[t(apply(mdm.net10.r1$am, 3, colSums)) == 0] = NA
+df.10r2[t(apply(mdm.net10.r2$am, 3, colSums)) == 0] = NA
+df.10r3[t(apply(mdm.net10.r3$am, 3, colSums)) == 0] = NA
+df.10r4[t(apply(mdm.net10.r4$am, 3, colSums)) == 0] = NA
+
+summary(colMeans(df.10r1, na.rm = T))
+summary(colMeans(df.10r2, na.rm = T))
+summary(colMeans(df.10r3, na.rm = T))
+summary(colMeans(df.10r4, na.rm = T))
 ```
 
 ## Load time series data
