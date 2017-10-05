@@ -42,7 +42,7 @@ PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is
 Sys.setenv(R_PATH_TS = PATH_TS)
 ```
 
-### Get Sim1 and Sim22 from fMRIB
+### Get Sim1 and Sim22 from FMRIB
 ```{bash}
 if [ -f ${R_PATH_TS}/sim1.mat ]; then
   echo Found sim1 and sim22.
