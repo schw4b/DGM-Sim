@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "27 Sep 2017"
+date: "05 Oct 2017"
 output:
   html_notebook: default
 ---
@@ -38,15 +38,20 @@ PATH_HOME = "/home/simon"
 PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM")  # Project path
 PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
 PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series data is
-PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is 
+PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is
+Sys.setenv(R_PATH_TS = PATH_TS)
 ```
 
-## Estimate networks
-```{r}
-# for (s in 1:N) {
-#   s=subject(scaleTs(ts.long[,,s]), id=sprintf("Id_%03d", s), 
-#             path = "~/Data/DGM/DGM-Sim/Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min")
-# }
+### Get Sim1 and Sim22 from fMRIB
+```{bash}
+if [ -f ${R_PATH_TS}/sim1.mat ]; then
+  echo Found sim1 and sim22.
+else
+  echo Downloading sim1 and sim22...
+  wget http://www.fmrib.ox.ac.uk/datasets/netsim/sims.tar.gz -P ${R_PATH_TS} >/dev/null 2>&1
+  tar zxvf ${R_PATH_TS}/sims.tar.gz -C ${R_PATH_TS} sim1.mat sim22.mat
+  rm ${R_PATH_TS}/sims.tar.gz
+fi
 ```
 
 ## Loading time series data
@@ -68,7 +73,7 @@ ts.int4 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24.mat'))$g
 ts.int5 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28.mat'))$gfy2s
 ts.int6 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$gfy2s
 
-# Very long 60 min sumulation
+# Very long 60 min simulation
 ts.long = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min.mat'))$gfy2s
 ```
 
@@ -108,6 +113,14 @@ ts.ssint3 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_I
 ts.ssint4 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F24.mat"))$gfy2s
 ts.ssint5 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F28.mat"))$gfy2s
 ts.ssint6 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_Inj1_F32.mat"))$gfy2s
+```
+
+## Estimate networks (example for a single simulation data set)
+```{r}
+# for (s in 1:N) {
+#  s=subject(scaleTs(ts.sim1[,,s]), id=sprintf("Id_%03d", s), 
+#            path = file.path(PATH_NET, "sim1"))
+# }
 ```
 
 ## Generate true network 
@@ -304,6 +317,7 @@ stats.dgm.sim22 = binom.nettest(dgm.sim22$tam, alter = "greater", fdr = 0.05)
 stats.dgm.sim22_e26 = binom.nettest(dgm.sim22_e26$tam, alter = "greater", fdr = 0.05)
 stats.dgm.sim22_np  = binom.nettest(dgm.sim22_e26$am, alter = "greater", fdr = 0.05)
 stats.dgm.long = binom.nettest(dgm.long$tam, alter = "greater", fdr = 0.05)
+
 # patel
 stats.pat.sim1  = binom.nettest(patel.sim1$net, alter = "greater", fdr = 0.05)
 stats.pat.sim22 = binom.nettest(patel.sim22$net, alter = "greater", fdr = 0.05)
@@ -340,10 +354,11 @@ print(table.perf, digits = 2)
 ```
 ### True network detection
 ```{r}
-x=array(c(sum(perf.dgm$sim22$subj[,1]>=1),
-    sum(perf.pat$sim22$subj[,1]>=1),
-    sum(perf.dgm$sim22$subj[,1]>=0.8),
-    sum(perf.pat$sim22$subj[,1]>=0.8)), dim=c(2,2))/N
+x=array(c(
+  sum(perf.dgm$sim22$subj[,1]>=1),
+  sum(perf.pat$sim22$subj[,1]>=1),
+  sum(perf.dgm$sim22$subj[,1]>=0.8),
+  sum(perf.pat$sim22$subj[,1]>=0.8)), dim=c(2,2))/N
 colnames(x)=c("5/5 nodes","4/5 nodes")
 rownames(x)=c("DGM","Patel")
 print(x)
@@ -472,7 +487,7 @@ S[5,c(1,2,7)]=c(9,31,6)
 img = readPNG(file.path(PATH_FIG, "fig-interventions-page001.png"))
 g = rasterGrob(img, interpolate=T)
 pA = ggplot() + annotation_custom(g) + theme(plot.title = element_text(size=12)) +
-  ggtitle('HRF shape intervention')
+  ggtitle('HRF lag intervention')
 
 pB=gplotMat(R[,idx], lim = c(0.1, 0.5), colMapLabel = expression("Pearson\'s"~italic(r)),
             title = "node correlations", titleTextSize = 12) + xlab("Node pairs") +
@@ -535,7 +550,7 @@ pA2=ggplot(melt(table.perf[1:3,c(2,7)]), aes(x=Var2, y=value, fill=Var1)) +
   theme(axis.title.x=element_blank(), axis.text.x = element_text(size=10)) +
   scale_fill_brewer(palette="Set1")
 
-pTop = plot_grid(pA1, pA2,  nrow=1, ncol=2, rel_widths = c(0.95, 1), labels = "A") +
+pTop = plot_grid(pA1, pA2,  nrow=1, ncol=2, rel_widths = c(0.95, 1), labels = c("A", "B")) +
   theme(plot.margin = unit(c(s, 0, s, 0), "cm"))
 
 pB1 = gplotMat(stats.dgm.sim22$adj, 'DGM', '%', hasColMap = F, titleTextSize = 12)
@@ -554,7 +569,7 @@ pBott = plot_grid(pC1, pC2, pC3, pC4, nrow=1, ncol=4, rel_widths = c(1,1,1,1.7))
   theme(plot.margin = unit(c(s, 0, s, 0), "cm"))
 
 plot_grid(pTop, pMid, pBott, ncol = 1, nrow = 3, rel_heights = c(1,1,1),
-          labels = c("", "B dynamic", "C stationary"),
+          labels = c("", "C dynamic", "D stationary"),
           vjust = 0.6, hjust = -0.1) 
 
 ggsave(path = PATH_FIG, "Fig3.png")
@@ -656,18 +671,30 @@ plot_grid(plotlist = p, ncol = 3, nrow = 3)
 ```
 
 ### DFs with parents only
-
-```{r, fig.height=2, fig.width=4, warning=FALSE}
+```{r}
 x = t(apply(dgm.sim22$tam, 3, colSums)) # Subj x no. of parents
 df.22 = dgm.sim22$df_
 df.22[x == 0] = NA
-
-  p1 = ggplot(melt(df.22), aes(x=Var2, y=value, group=Var2)) + geom_boxplot(width=0.4) +
-    geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
+summary(colMeans(df.22, na.rm = T))
 
 x = t(apply(dgm.int0$am, 3, colSums)) # Subj x no. of parents
 df.0 = dgm.int0$df_
 df.0[x == 0] = NA
+summary(colMeans(df.0, na.rm = T))
+
+x = t(apply(dgm.int6$am, 3, colSums)) # Subj x no. of parents
+df.6 = dgm.int6$df_
+df.6[x == 0] = NA
+summary(colMeans(df.6, na.rm = T))
+```
+
+```{r, fig.height=2, fig.width=4, warning=FALSE}
+
+
+  p1 = ggplot(melt(df.22), aes(x=Var2, y=value, group=Var2)) + geom_boxplot(width=0.4) +
+    geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
+
+
 
   p2 = ggplot(melt(df.0), aes(x=Var2, y=value, group=Var2)) + geom_boxplot(width=0.4) +
     geom_point(shape=1, color="gray70", size=0.5, position = position_jitter(width = 0.2, height = 0.0))
@@ -675,13 +702,7 @@ df.0[x == 0] = NA
 plot_grid(p1, p2, ncol = 2, nrow = 1)
 ```
 
-```{r}
-colMeans(df.22, na.rm = T)
-colMeans(df.0, na.rm = T)
 
-summary(colMeans(df.22, na.rm = T))
-summary(colMeans(df.0, na.rm = T))
-```
 
 ## Stats for DGM 7 HRF datasets 
 ```{r}
@@ -823,7 +844,7 @@ res[1,] = c(perf.dgm$int0$tpr, perf.dgm$int1$tpr, perf.dgm$int2$tpr, perf.dgm$in
             perf.dgm$int4$tpr, perf.dgm$int5$tpr, perf.dgm$int6$tpr)
 res[2,] = c(perf.dgm$int0$spc, perf.dgm$int1$spc, perf.dgm$int2$spc, perf.dgm$int3$spc,
             perf.dgm$int4$tpr, perf.dgm$int5$spc, perf.dgm$int6$spc)
-colnames(res) <- c("<0.4s", "0.4s", "0.8s", "1.1s", "1.4s", "1.6s", "1.8s")
+colnames(res) <- c("<0.4s", "0.4s", "0.8s", "1.1s", "1.4s", "1.7s", "1.9s")
 rownames(res) <- c("Sensitivity", "Specificity")
 
 print(res)
@@ -841,5 +862,4 @@ ggplot(melt(res), aes(x=Var2, y=value, group=Var1, color=Var1)) +
 
 ggsave(path = PATH_FIG, "Fig4.png")
 ```
-
 
