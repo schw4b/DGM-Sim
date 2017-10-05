@@ -1,7 +1,7 @@
 ---
 title: "DGM-RSN10"
 author: "Simon Schwab"
-date: "27 Sep 2017"
+date: "05 Oct 2017"
 output:
   html_notebook: default
 ---
@@ -30,7 +30,7 @@ library(testit)
 ## Main variables 
 ```{r}
 PATH_HOME = "/home/simon"
-PATH_NET  = file.path(PATH_HOME, 'Drive', 'MDM_NetMats10_results')
+PATH_NET  = file.path(PATH_HOME, 'Drive', 'DGM_NetMats10_results')
 PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
 PATH      = file.path(PATH_HOME, 'Dropbox', 'Data', 'DGM')
 PATH_DATA = file.path(PATH, 'data')
@@ -89,30 +89,30 @@ summary(demog$Age)/N
 #   print(sprintf("Subject %03d loaded",s))
 # }
 # 
-# mdm.net10.r1 = mdm.group(subj_r1)
-# mdm.net10.r2 = mdm.group(subj_r2)
-# mdm.net10.r3 = mdm.group(subj_r3)
-# mdm.net10.r4 = mdm.group(subj_r4)
+# dgm.net10.r1 = dgm.group(subj_r1)
+# dgm.net10.r2 = dgm.group(subj_r2)
+# dgm.net10.r3 = dgm.group(subj_r3)
+# dgm.net10.r4 = dgm.group(subj_r4)
 # 
 # # save some space
-# mdm.net10.r1$models = NULL
-# mdm.net10.r2$models = NULL
-# mdm.net10.r3$models = NULL
-# mdm.net10.r4$models = NULL
+# dgm.net10.r1$models = NULL
+# dgm.net10.r2$models = NULL
+# dgm.net10.r3$models = NULL
+# dgm.net10.r4$models = NULL
 # 
-# f=file(file.path(PATH_DATA,"net10.RData"))
-# save(mdm.net10.r1, mdm.net10.r2, mdm.net10.r3, mdm.net10.r4, file = f, compress = T)
+# f=file(file.path(PATH,"results", "DGM-RSN10.RData"))
+# save(dgm.net10.r1, dgm.net10.r2, dgm.net10.r3, dgm.net10.r4, file = f, compress = T)
 # close(f)
-load(file.path(PATH, 'results', 'net10.RData'))
+load(file.path(PATH, 'results', 'DGM-RSN10.RData'))
 ```
 
 ## Plot: discount factor delta distribution per node
 ```{r, fig.height=4, fig.width=5}
 
-d.r1=melt(mdm.net10.r1$df_)
-d.r2=melt(mdm.net10.r2$df_)
-d.r3=melt(mdm.net10.r3$df_)
-d.r4=melt(mdm.net10.r4$df_)
+d.r1=melt(dgm.net10.r1$df_)
+d.r2=melt(dgm.net10.r2$df_)
+d.r3=melt(dgm.net10.r3$df_)
+d.r4=melt(dgm.net10.r4$df_)
 
 
 p1 = ggplot(d.r1, aes(x=as.factor(Var2), y=value)) +
@@ -141,15 +141,15 @@ plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ### DFs with parents only
 
 ```{r, fig.height=2, fig.width=4}
-df.10r1 = mdm.net10.r1$df_
-df.10r2 = mdm.net10.r2$df_
-df.10r3 = mdm.net10.r3$df_
-df.10r4 = mdm.net10.r4$df_
+df.10r1 = dgm.net10.r1$df_
+df.10r2 = dgm.net10.r2$df_
+df.10r3 = dgm.net10.r3$df_
+df.10r4 = dgm.net10.r4$df_
 
-df.10r1[t(apply(mdm.net10.r1$am, 3, colSums)) == 0] = NA
-df.10r2[t(apply(mdm.net10.r2$am, 3, colSums)) == 0] = NA
-df.10r3[t(apply(mdm.net10.r3$am, 3, colSums)) == 0] = NA
-df.10r4[t(apply(mdm.net10.r4$am, 3, colSums)) == 0] = NA
+df.10r1[t(apply(dgm.net10.r1$am, 3, colSums)) == 0] = NA
+df.10r2[t(apply(dgm.net10.r2$am, 3, colSums)) == 0] = NA
+df.10r3[t(apply(dgm.net10.r3$am, 3, colSums)) == 0] = NA
+df.10r4[t(apply(dgm.net10.r4$am, 3, colSums)) == 0] = NA
 
 summary(colMeans(df.10r1, na.rm = T))
 summary(colMeans(df.10r2, na.rm = T))
@@ -265,18 +265,18 @@ plot_grid(p1, p2, p3, p4, ncol = 1, nrow = 4, rel_widths = c(1, 1))
 
 ## Network consistency across subjects
 ```{r}
-stats.r1 = binom.nettest(mdm.net10.r1$am, alter = "greater")
-stats.r2 = binom.nettest(mdm.net10.r2$am, alter = "greater")
-stats.r3 = binom.nettest(mdm.net10.r3$am, alter = "greater")
-stats.r4 = binom.nettest(mdm.net10.r4$am, alter = "greater")
+stats.r1 = binom.nettest(dgm.net10.r1$am, alter = "greater")
+stats.r2 = binom.nettest(dgm.net10.r2$am, alter = "greater")
+stats.r3 = binom.nettest(dgm.net10.r3$am, alter = "greater")
+stats.r4 = binom.nettest(dgm.net10.r4$am, alter = "greater")
 ```
 
 ### Difference between e=0 and e=20
 ```{r}
-x = c(sum(mdm.net10.r1$tam != mdm.net10.r1$am),
-      sum(mdm.net10.r2$tam != mdm.net10.r2$am),
-      sum(mdm.net10.r3$tam != mdm.net10.r3$am),
-      sum(mdm.net10.r4$tam != mdm.net10.r4$am)
+x = c(sum(dgm.net10.r1$tam != dgm.net10.r1$am),
+      sum(dgm.net10.r2$tam != dgm.net10.r2$am),
+      sum(dgm.net10.r3$tam != dgm.net10.r3$am),
+      sum(dgm.net10.r4$tam != dgm.net10.r4$am)
 )
 print(x)
 print(x/(N*N_comp*(N_comp-1)))
@@ -336,11 +336,11 @@ ggsave(path = PATH_FIG, "Fig5.png")
 ## Networks consistency across runs
 ```{r}
 # edge reproduced in 3 runs or more
-m3 = mdm.net10.r1$am + mdm.net10.r2$am + mdm.net10.r3$am + mdm.net10.r4$am > 2
+m3 = dgm.net10.r1$am + dgm.net10.r2$am + dgm.net10.r3$am + dgm.net10.r4$am > 2
 # edge reproduced in all runs
-m4 = mdm.net10.r1$am * mdm.net10.r2$am * mdm.net10.r3$am * mdm.net10.r4$am
+m4 = dgm.net10.r1$am * dgm.net10.r2$am * dgm.net10.r3$am * dgm.net10.r4$am
 # consistently no edge in all runs
-mn = (1-mdm.net10.r1$am) * (1-mdm.net10.r2$am) * (1-mdm.net10.r3$am) * (1-mdm.net10.r4$am)
+mn = (1-dgm.net10.r1$am) * (1-dgm.net10.r2$am) * (1-dgm.net10.r3$am) * (1-dgm.net10.r4$am)
 
 stats.m3 = binom.nettest(m3, alter = "greater")
 stats.m4 = binom.nettest(m4, alter = "greater")
@@ -348,7 +348,7 @@ stats.mn = binom.nettest(mn, alter = "greater")
 ```
 
 ## Figure 6
-```{r, fig.height=7.8, fig.width=6.2}
+```{r, fig.height=7.8, fig.width=6.2, message=FALSE}
 p1 = gplotMat(stats.m3$adj, title = "edge in 3/4 runs", nodeLabels=labels$Label,
               axisTextSize=9, xAngle=90, lim = c(0, 0.6)) +
   scale_x_continuous(breaks = pos, labels = labels$Label)
@@ -381,107 +381,7 @@ plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "", "", "B", ""),
 ggsave(path = PATH_FIG, "Fig6.png")
 ```
 
-```{r Clustering, eval=FALSE, include=FALSE}
-# distance
-# d1 = dist(t(array(mdm.net10.r1$am, dim = c(N_comp*N_comp,N))), method = "binary")
-# d2 = dist(t(array(mdm.net10.r2$am, dim = c(N_comp*N_comp,N))), method = "binary")
-# d3 = dist(t(array(mdm.net10.r3$am, dim = c(N_comp*N_comp,N))), method = "binary")
-# d4 = dist(t(array(mdm.net10.r4$am, dim = c(N_comp*N_comp,N))), method = "binary")
 
-d1 = dist(t(array(rmna(mdm.net10.r1$lpl), dim = c(N_comp*N_comp,N))))
-d2 = dist(t(array(rmna(mdm.net10.r2$lpl), dim = c(N_comp*N_comp,N))))
-d3 = dist(t(array(rmna(mdm.net10.r3$lpl), dim = c(N_comp*N_comp,N))))
-d4 = dist(t(array(rmna(mdm.net10.r4$lpl), dim = c(N_comp*N_comp,N))))
 
-X=array(NA, dim=c(10,10,2000))
-X[,,1:500]=mdm.net10.r1$lpl
-X[,,501:1000]=mdm.net10.r2$lpl
-X[,,1001:1500]=mdm.net10.r3$lpl
-X[,,1501:2000]=mdm.net10.r4$lpl
 
-am=array(NA, dim=c(10,10,2000))
-am[,,1:500]=mdm.net10.r1$am
-am[,,501:1000]=mdm.net10.r2$am
-am[,,1001:1500]=mdm.net10.r3$am
-am[,,1501:2000]=mdm.net10.r4$am
-
-d1 = dist(t(array(rmna(X), dim = c(N_comp*N_comp,N*4))))
-
-clust1 = hclust(d1, method = "complete")
-
-clust1 = hclust(d1, method = "complete")
-clust2 = hclust(d2, method = "complete")
-clust3 = hclust(d3, method = "complete")
-clust4 = hclust(d4, method = "complete")
-
-K=5
-grp1 = cutree(clust1, k = K)
-grp2 = cutree(clust2, k = K)
-grp3 = cutree(clust3, k = K)
-grp4 = cutree(clust4, k = K)
-
-rbind(summary(as.factor(grp1)), summary(as.factor(grp2)), summary(as.factor(grp3)), summary(as.factor(grp4)))
-```
-
-```{r Clustering: Plot, eval=FALSE, fig.height=5, fig.width=7, include=FALSE}
-par(mfrow=c(2,2))
-plot(clust1)
-plot(clust2)
-plot(clust3)
-plot(clust4)
-```
-
-```{r Plot Clusters, eval=FALSE, fig.height=7, fig.width=8, include=FALSE}
-S = array(NaN, dim=c(N_comp,N_comp,K))
-grp3[1]=5
-for (i in 1:K){
-  S[,,1,i]=binom.nettest(mdm.net10.r1$am[,,grp1==i], alter = "greater")$adj_fdr
-  S[,,2,i]=binom.nettest(mdm.net10.r2$am[,,grp2==i], alter = "greater")$adj_fdr
-  S[,,3,i]=binom.nettest(mdm.net10.r3$am[,,grp3==i], alter = "greater")$adj_fdr
-  S[,,4,i]=binom.nettest(mdm.net10.r4$am[,,grp4==i], alter = "greater")$adj_fdr
-}
-
-for (i in 1:K){
-  S[,,i]=binom.nettest(am[,,grp1==i], alter = "greater")$adj_fdr
-  #S[,,i]=binom.nettest(am[,,grp2==i], alter = "greater")$adj_fdr
-  #S[,,i]=binom.nettest(am[,,grp3==i], alter = "greater")$adj_fdr
-  #S[,,i]=binom.nettest(am[,,grp4==i], alter = "greater")$adj_fdr
-}
-
-# run 1
-p11 = gplotMat(rmna(S[,,1]), hasColMap = F, axisTextSize = 9)
-p12 = gplotMat(rmna(S[,,2]), hasColMap = F, axisTextSize = 9)
-p13 = gplotMat(rmna(S[,,3]), hasColMap = F, axisTextSize = 9)
-p14 = gplotMat(rmna(S[,,4]), hasColMap = F, axisTextSize = 9)
-p15 = gplotMat(rmna(S[,,5]), hasColMap = F, axisTextSize = 9)
-
-# run 2
-p21 = gplotMat(rmna(S[,,2,1]), hasColMap = F, axisTextSize = 9)
-p22 = gplotMat(rmna(S[,,2,2]), hasColMap = F, axisTextSize = 9)
-p23 = gplotMat(rmna(S[,,2,3]), hasColMap = F, axisTextSize = 9)
-p24 = gplotMat(rmna(S[,,2,4]), hasColMap = F, axisTextSize = 9)
-p25 = gplotMat(rmna(S[,,2,5]), hasColMap = F, axisTextSize = 9)
-
-# run 3
-p31 = gplotMat(rmna(S[,,3,1]), hasColMap = F, axisTextSize = 9)
-p32 = gplotMat(rmna(S[,,3,2]), hasColMap = F, axisTextSize = 9)
-p33 = gplotMat(rmna(S[,,3,3]), hasColMap = F, axisTextSize = 9)
-p34 = gplotMat(rmna(S[,,3,4]), hasColMap = F, axisTextSize = 9)
-p35 = gplotMat(rmna(S[,,3,5]), hasColMap = F, axisTextSize = 9)
-
-# run 4
-p41 = gplotMat(rmna(S[,,4,1]), hasColMap = F, axisTextSize = 9)
-p42 = gplotMat(rmna(S[,,4,2]), hasColMap = F, axisTextSize = 9)
-p43 = gplotMat(rmna(S[,,4,3]), hasColMap = F, axisTextSize = 9)
-p44 = gplotMat(rmna(S[,,4,4]), hasColMap = F, axisTextSize = 9)
-p45 = gplotMat(rmna(S[,,4,5]), hasColMap = F, axisTextSize = 9)
-
-plot_grid(p11,p12,p13,p14,p15,p21,p22,p23,p24,p25,
-          p31,p32,p33,p34,p35,p41,p42,p43,p44,p45, nrow = 4, ncol = 5)
-
-plot_grid(p11,p12,p13,p14,p15, nrow = 2, ncol = 3)
-
-#ggsave(path = '/home/simon', "Fig.png")
-
-```
 
