@@ -1,7 +1,7 @@
 ---
 title: "DGM-Mouse"
 author: "Simon Schwab"
-date: "27 June 2017"
+date: "05 Oct 2017"
 output:
   html_notebook: default
 ---
@@ -66,7 +66,7 @@ PATH_DATA = file.path(PATH_HOME, "Drive", "Mouse")
 #setwd(PATH)
 #save(mdm.mouse14, mdm.mouse16, mdm.net1wt, mdm.net2wt, file = "mdm-mouse.RData")
 
-load(file.path(PATH, "results", "mdm-mouse.RData"))
+load(file.path(PATH, "results", "DGM-Mouse.RData"))
 
 ```
 

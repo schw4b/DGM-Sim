@@ -23,7 +23,6 @@ library(ggplot2)
 library(cowplot)
 library(reshape2)
 library(data.table)
-library(testthat)
 library(testit)
 ```
 
@@ -44,7 +43,7 @@ N_runs = 4
 INFO   = 'NetMats10'
 SUBJECTS = as.matrix(read.table(file.path(PATH_TS, 'subjectIDs.txt')))
 TR=0.72
-labels = read.table(file.path(PATH, 'results', 'Net10Labels.txt'), header = T)
+labels = read.table(file.path(PATH, 'results', 'RSN10Labels.txt'), header = T)
 labels = labels[order(labels$NoNetMats25),]
 COMP=labels$NoNetMats25
 
