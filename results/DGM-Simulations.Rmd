@@ -267,29 +267,35 @@ colMeans(R[3:9,idx])
 
 ## Loading DGM data from Sim1 and Sim22 
 ```{r}
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'sim1'), sprintf("Id_%03d",s), Nn)
-}
-dgm.sim1=dgm.group(subj)
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'sim1'), sprintf("Id_%03d",s), Nn)
+# }
+# dgm.sim1=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn)
+# }
+# dgm.sim22=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn, e = 26)
+# }
+# dgm.sim22_e26=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min'), sprintf("Id_%03d",s), Nn)
+# }
+# dgm.long=dgm.group(subj)
+# 
+# f=file(file.path(PATH,"results", "DGM-Sim.RData"))
+# save(dgm.sim1, dgm.sim22, dgm.sim22_e26, dgm.long, file = f, compress = T)
+# close(f)
 
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn)
-}
-dgm.sim22=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",s), Nn, e = 26)
-}
-dgm.sim22_e26=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min'), sprintf("Id_%03d",s), Nn)
-}
-dgm.long=dgm.group(subj)
+load(file.path(PATH, 'results', 'DGM-Sim.RData'))
 ```
 
 ### Patel network analysis 
@@ -595,54 +601,60 @@ gplotMat(M, title = "Common net", hasColMap = F)
 
 ## Loading DGM of 7 HRF datasets 
 ```{r}
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int0=dgm.group(subj)
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj0_F1'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int0=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int1=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int2=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int3=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int4=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int5=dgm.group(subj)
+# 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
+#                            sprintf("Id_%03d",s), Nn)
+# }
+# dgm.int6=dgm.group(subj)
+# 
+# f=file(file.path(PATH,"results", "DGM-Sim_hrf.RData"))
+# save(dgm.int0, dgm.int1, dgm.int2, dgm.int3, dgm.int4, dgm.int5, dgm.int6, file = f, compress = T)
+# close(f)
 
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int1=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F16'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int2=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F20'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int3=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F24'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int4=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F28'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int5=dgm.group(subj)
-
-subj=list()
-for (s in 1:N) {
-  subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32'),
-                           sprintf("Id_%03d",s), Nn)
-}
-dgm.int6=dgm.group(subj)
+load(file.path(PATH, 'results', 'DGM-Sim_hrf.RData'))
 ```
 
 
