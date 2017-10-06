@@ -170,10 +170,10 @@ summary(colMeans(df.10r4, na.rm = T))
 #   ts[,,4,s] = d[3601:4800,COMP]
 # }
 # 
-# f=file(file.path(PATH,"ts10.RData"))
+# f=file(file.path(PATH,"RSN10-ts.RData"))
 # save(ts, file = f)
 # close(f)
-load(file.path(PATH, 'results', 'ts10.RData'))
+load(file.path(PATH, 'results', 'RSN10-ts.RData'))
 ```
 
 ### Variance of nodes
@@ -188,22 +188,22 @@ r4=apply(ts[,,4,], c(3,2), sd)
 
 ```{r, fig.height=4, fig.width=6}
 p1 = ggplot(melt(r1), aes(x=as.factor(Var2), y=value)) +
-  geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_point(shape=1, color="gray50", size=2) +
   geom_boxplot(width=0.3) +
   ggtitle(sprintf("Run 1", N)) + ylab("SD") + xlab("RSNs")
 
 p2 = ggplot(melt(r2), aes(x=as.factor(Var2), y=value)) +
-  geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_point(shape=1, color="gray50", size=2) +
   geom_boxplot(width=0.3) +
   ggtitle(sprintf("Run 2", N)) + ylab("SD") + xlab("RSNs")
 
 p3 = ggplot(melt(r3), aes(x=as.factor(Var2), y=value)) +
-  geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_point(shape=1, color="gray50", size=2) +
   geom_boxplot(width=0.3) +
   ggtitle(sprintf("Run 3", N)) + ylab("SD") + xlab("RSNs")
 
 p4 = ggplot(melt(r4), aes(x=as.factor(Var2), y=value)) +
-  geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
+  geom_point(shape=1, color="gray50", size=2) +
   geom_boxplot(width=0.3) +
   ggtitle(sprintf("Run 4", N)) + ylab("SD") + xlab("RSNs")
 
