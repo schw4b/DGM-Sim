@@ -1,0 +1,12 @@
+NoSmith10 NoNetMats25 Label Description
+ 1  3 "VisMed" "Visual medial"
+ 2  1 "VisOcc" "Visual occipital pole"
+ 3  4 "VisLat" "Visual lateral/ventral"
+ 4  2 "DMN" "DMN"
+ 5 18 "Cerebell" "Cerebellum"
+ 6 14 "SensMot" "Sensorimotor"
+ 7 19 "Aud" "Auditory"
+ 8 21 "Exec" "Executive Control (also thalamus)"
+ 9  5 "FrontParR" "Frontoparietal right"
+10 10 "FrontParL" "Frontoparietal left"
+
