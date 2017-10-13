@@ -1,9 +1,8 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "05 Oct 2017"
-output:
-  html_notebook: default
+date: "09 Oct 2017"
+output: html_notebook
 ---
 
 ## Packages and main variables
@@ -75,10 +74,13 @@ ts.int6 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F32.mat'))$g
 
 # Very long 60 min simulation
 ts.long = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF4_Mod1_Inj0_F1_60min.mat'))$gfy2s
+
+# noise
+ts.noise = readMat(file.path(PATH_TS,'Nn5_TR2_Noise1_HRF4_Mod1_Inj0_F1_noise.mat'))$gfy2s
 ```
 
 ### Plot timeseries of random subject
-```{r, fig.height=8, fig.width=10}
+```{r, fig.height=10, fig.width=10}
 t = 1:50 # interval to plot
 s = sample(N,1) # random subject
 vn = c("time", "node")
@@ -93,15 +95,16 @@ d[[7]] = melt(ts.int4[t,,s], varnames = vn)
 d[[8]] = melt(ts.int5[t,,s], varnames = vn)
 d[[9]] = melt(ts.int6[t,,s], varnames = vn)
 d[[10]] = melt(ts.long[t,,s], varnames = vn)
+d[[11]] = melt(ts.noise[t,,s], varnames = vn)
 
 p=list()
-str_int = c("sim1", "sim22", "int0", "int1", "int2", "int3", "int4", "int5", "int6" , "long")
+str_int = c("sim1", "sim22", "int0", "int1", "int2", "int3", "int4", "int5", "int6" , "long", "noise")
 for (i in 1:length(d)) {
   p[[i]] = ggplot(d[[i]], aes(x = time, y = value, group=node, color=as.factor(node))) + geom_line() +
     theme_minimal() + ggtitle(str_int[i]) + scale_color_discrete(name = "node")
 }
 
-plot_grid(plotlist = p, ncol = 2, nrow = 5, rel_widths = c(1, 1))
+plot_grid(plotlist = p, ncol = 2, nrow = 6, rel_widths = c(1, 1))
 ```
 
 ### Load time series data (single spike)
@@ -120,6 +123,11 @@ ts.ssint6 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_I
 # for (s in 1:N) {
 #  s=subject(scaleTs(ts.sim1[,,s]), id=sprintf("Id_%03d", s), 
 #            path = file.path(PATH_NET, "sim1"))
+# }
+# 
+# for (s in 1:N) {
+#   s=subject(scaleTs(ts.noise[,,s]), id=sprintf("Id_%03d", s),
+#             path = file.path(PATH_NET, "Nn5_TR2_Noise1_HRF4_Mod1_Inj0_F1_noise"))
 # }
 ```
 
@@ -291,8 +299,14 @@ colMeans(R[3:9,idx])
 # }
 # dgm.long=dgm.group(subj)
 # 
+# subj=list()
+# for (s in 1:N) {
+#   subj[[s]] = read.subject(file.path(PATH_NET,'Nn5_TR2_Noise1_HRF4_Mod1_Inj0_F1_noise'), sprintf("Id_%03d",s), Nn)
+# }
+# dgm.noise=dgm.group(subj)
+# 
 # f=file(file.path(PATH,"results", "DGM-Sim.RData"))
-# save(dgm.sim1, dgm.sim22, dgm.sim22_e26, dgm.long, file = f, compress = T)
+# save(dgm.sim1, dgm.sim22, dgm.sim22_e26, dgm.long, dgm.noise, file = f, compress = T)
 # close(f)
 
 load(file.path(PATH, 'results', 'DGM-Sim.RData'))
@@ -323,6 +337,7 @@ stats.dgm.sim22 = binom.nettest(dgm.sim22$tam, alter = "greater", fdr = 0.05)
 stats.dgm.sim22_e26 = binom.nettest(dgm.sim22_e26$tam, alter = "greater", fdr = 0.05)
 stats.dgm.sim22_np  = binom.nettest(dgm.sim22_e26$am, alter = "greater", fdr = 0.05)
 stats.dgm.long = binom.nettest(dgm.long$tam, alter = "greater", fdr = 0.05)
+stats.dgm.noise = binom.nettest(dgm.noise$tam, alter = "greater", fdr = 0.05)
 
 # patel
 stats.pat.sim1  = binom.nettest(patel.sim1$net, alter = "greater", fdr = 0.05)
@@ -337,6 +352,7 @@ perf.pat=list()
 perf.dgm$sim1  = perf(dgm.sim1$tam, xtrue)
 perf.dgm$sim22 = perf(dgm.sim22$tam, xtrue)
 perf.dgm$long  = perf(dgm.long$tam, xtrue)
+perf.dgm$noise  = perf(dgm.noise$tam, xtrue)
 
 perf.dgm$sim22_e26 = perf(dgm.sim22_e26$tam, xtrue)
 perf.dgm$sim22_np = perf(dgm.sim22$am, xtrue)
@@ -347,14 +363,15 @@ perf.pat$sim22 = perf(patel.sim22$net, xtrue)
 table.perf=array(c(perf.dgm$sim22$tpr, perf.dgm$sim22$spc, perf.dgm$sim22$acc,
                    perf.dgm$sim1$tpr,  perf.dgm$sim1$spc,  perf.dgm$sim1$acc,
                    perf.dgm$long$tpr,  perf.dgm$long$spc,  perf.dgm$long$acc,
+                   perf.dgm$noise$tpr,  perf.dgm$noise$spc,  perf.dgm$noise$acc,
                    perf.dgm$sim22_e26$tpr, perf.dgm$sim22_e26$spc, perf.dgm$sim22_e26$acc,
                    perf.dgm$sim22_np$tpr, perf.dgm$sim22_np$spc, perf.dgm$sim22_np$acc,
                    perf.pat$sim22$tpr, perf.pat$sim22$spc, perf.pat$sim22$acc,
                    perf.pat$sim1$tpr,  perf.pat$sim1$spc,  perf.pat$sim1$acc),
-                 dim=c(3,7))
+                 dim=c(3,8))
 
 rownames(table.perf) <- c("Sensitvity", "Specificity", "Accuracy")
-colnames(table.perf) <- c("DGM_Sim22", "DGM_Sim1", 'DGM_Sim2260min', 'DGM_Sim22e26', 'DGM_Sim22np',
+colnames(table.perf) <- c("DGM_Sim22", "DGM_Sim1", 'DGM_60min', 'DGM_noise',  'DGM_Sim22e26', 'DGM_Sim22np',
                           "Pat_Sim22", "Pat_Sim1")
 print(table.perf, digits = 2)
 ```
@@ -541,15 +558,14 @@ ggsave(path = PATH_FIG, "Fig2.png")
 ```{r, fig.height=5.5, fig.width=6.3, message=FALSE, warning=TRUE}
 
 s = 0.2 # spacing
-
-pA1=ggplot(melt(table.perf[1:3,c(1,4,5,6)]), aes(x=Var2, y=value, fill=Var1)) +
+pA1=ggplot(melt(table.perf[1:3,c(1,5,6,7)]), aes(x=Var2, y=value, fill=Var1)) +
   geom_bar(stat="identity", position=position_dodge()) + guides(fill=FALSE) + ylab("Proportion") +
   scale_x_discrete(labels=c("DGM_Sim22" = "DGM\ne=20", "Pat_Sim22" = "Patel",
                             "DGM_Sim22e26" = "DGM\ne=26", "DGM_Sim22np" = "DGM\ne=0")) +
   theme(axis.title.x=element_blank(), axis.text.x = element_text(size=10)) + 
   ggtitle("dynamic") + coord_cartesian(ylim=c(0.4,0.8)) + scale_fill_brewer(palette="Set1")
 
-pA2=ggplot(melt(table.perf[1:3,c(2,7)]), aes(x=Var2, y=value, fill=Var1)) +
+pA2=ggplot(melt(table.perf[1:3,c(2,8)]), aes(x=Var2, y=value, fill=Var1)) +
   scale_x_discrete(labels=c("DGM_Sim1" = "DGM\ne=20", "Pat_Sim1" = "Patel")) + 
   geom_bar(stat="identity", position=position_dodge()) + ylab("Proportion") + ggtitle("stationary") +
   coord_cartesian(ylim=c(0.4,0.8)) + guides(fill=guide_legend(title="")) +
@@ -873,5 +889,15 @@ ggplot(melt(res), aes(x=Var2, y=value, group=Var1, color=Var1)) +
   xlab("Intervention")
 
 ggsave(path = PATH_FIG, "Fig4.png")
+```
+
+## With a 3T scanner thermal noise is below 1%, usually ~0.2%
+```{r, fig.height=4, fig.width=5}
+p1=gplotMat(stats.dgm.sim1$adj,  title = "sim1")
+p2=gplotMat(stats.dgm.sim22$adj, title = "sim22")
+p3=gplotMat(stats.dgm.long$adj,  title = "60 min.")
+p4=gplotMat(stats.dgm.noise$adj, title = "0.3% noise")
+
+plot_grid(p1, p2, p3, p4, ncol=2, nrow=2)
 ```
 

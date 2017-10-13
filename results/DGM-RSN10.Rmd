@@ -2,8 +2,7 @@
 title: "DGM-RSN10"
 author: "Simon Schwab"
 date: "05 Oct 2017"
-output:
-  html_notebook: default
+output: html_notebook
 ---
 
 ## Install required packages 
@@ -113,7 +112,7 @@ d.r2=melt(dgm.net10.r2$df_)
 d.r3=melt(dgm.net10.r3$df_)
 d.r4=melt(dgm.net10.r4$df_)
 
-
+set.seed(1980) # because jitter will always create a slightly different image
 p1 = ggplot(d.r1, aes(x=as.factor(Var2), y=value)) +
   geom_point(shape=1, color="gray50", size=2, position = position_jitter(width = NULL, height = 0.01)) +
   geom_boxplot(width=0.6) +
