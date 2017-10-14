@@ -19,11 +19,7 @@ output: html_notebook
 
 ## Load libraries 
 ```{r}
-#library(multdyn)
-
-library(devtools)
-load_all("~/Data/multdyn/")
-
+library(multdyn)
 library(R.matlab)
 library(testit)
 library(ggplot2)
@@ -80,3 +76,5 @@ prc[2] = (sum(g.ex$am==g.bw$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc[3] = (sum(g.ex$am==g.bo$am)-(Nn*N))/(Nn*(Nn-1)*N)
 print(prc)
 ```
+
+Stepwise both forward and backward combined is best and almost identical to exhaustive search.
