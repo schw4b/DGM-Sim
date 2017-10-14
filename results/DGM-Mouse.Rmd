@@ -2,8 +2,7 @@
 title: "DGM-Mouse"
 author: "Simon Schwab"
 date: "05 Oct 2017"
-output:
-  html_notebook: default
+output: html_notebook
 ---
 
 ## Install required packages 
