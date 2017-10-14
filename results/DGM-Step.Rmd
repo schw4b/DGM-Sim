@@ -1,0 +1,82 @@
+---
+title: "DGM-Stepwise"
+author: "Simon Schwab"
+date: "14 Oct 2017"
+output: html_notebook
+---
+
+## Packages and main variables
+
+## Install required packages 
+```{r}
+# install.packages("rmarkdown")
+# install.packages("multdyn")
+# install.packages("R.matlab")
+# install.packages("cowplot")
+# install.packages("png")
+# install.packages("testit")
+```
+
+## Load libraries 
+```{r}
+#library(multdyn)
+
+library(devtools)
+load_all("~/Data/multdyn/")
+
+library(R.matlab)
+library(testit)
+library(ggplot2)
+library(cowplot)
+library(reshape2)
+library(png)
+library(grid)
+```
+
+```{r}
+N=50 # Number of simulated subjects/datasets
+Nn=5 # Number of nodes
+PATH_HOME = "/home/simon"
+PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM")  # Project path
+PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
+PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series data is
+PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is
+```
+
+## Load data
+```{r}
+ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
+```
+
+## Estimate networks
+```{r}
+# ex = fw = bw = bo = list()
+# for (i in 1:N) {
+#   print(sprintf("Estimating subject %03d", i))
+#   ex[[i]] = subject(ts.int1[,,i], method = "exhaustive")
+#   fw[[i]] = subject(ts.int1[,,i], method = "forward")
+#   bw[[i]] = subject(ts.int1[,,i], method = "backward")
+#   bo[[i]] = subject(ts.int1[,,i], method = "both")
+# }
+# 
+# f=file(file.path(PATH,"results", "DGM-Step.RData"))
+# save(ex, fw, bw, bo, file = f, compress = T)
+# close(f)
+
+load(file.path(PATH, 'results', 'DGM-Step.RData'))
+```
+
+# Compare stepwise
+```{r}
+g.ex = dgm.group(ex)
+g.fw = dgm.group(fw)
+g.bw = dgm.group(bw)
+g.bo = dgm.group(bo)
+
+prc = array(NA,dim = c(1,3))
+colnames(prc) = c("forward", "backward", "both")
+prc[1] = (sum(g.ex$am==g.fw$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[2] = (sum(g.ex$am==g.bw$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[3] = (sum(g.ex$am==g.bo$am)-(Nn*N))/(Nn*(Nn-1)*N)
+print(prc)
+```

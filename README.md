@@ -26,3 +26,6 @@ Schwab S, Harbord R, Zerbi V, Elliott L, Afyouni S, Smith JQ, Woolrich MW, Smith
 * Simulation time series are in this repository except sim1 and sim22 which can be obtained from the FMRIB [NetSim Website](http://www.fmrib.ox.ac.uk/datasets/netsim/). The Notebook will download these automatically and will extract them.
 * Human RSN time series can be obtained from the Human Connectome Project, Parcellation+Timeseries+Netmats (PTN) from [here](https://db.humanconnectome.org).
 * Mouse time-series is not open and must be requested from [valerio.zerbi@hest.ethz.ch](valerio.zerbi@hest.ethz.ch), but the network data is available.
+
+## Additonal Analyses
+- [DGM-Stepwise](https://rawgit.com/schw4b/DGM/master/results/DGM-Step.nb.html)
