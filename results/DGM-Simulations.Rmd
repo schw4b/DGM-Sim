@@ -82,6 +82,7 @@ ts.noise = readMat(file.path(PATH_TS,'Nn5_TR2_Noise1_HRF4_Mod1_Inj0_F1_noise.mat
 ### Plot timeseries of random subject
 ```{r, fig.height=10, fig.width=10}
 t = 1:50 # interval to plot
+set.seed(1980)
 s = sample(N,1) # random subject
 vn = c("time", "node")
 d=list()
