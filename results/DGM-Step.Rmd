@@ -5,8 +5,6 @@ date: "14 Oct 2017"
 output: html_notebook
 ---
 
-## Packages and main variables
-
 ## Install required packages 
 ```{r}
 # install.packages("rmarkdown")
@@ -19,7 +17,7 @@ output: html_notebook
 
 ## Load libraries 
 ```{r}
-library(multdyn)
+#library(multdyn)
 library(R.matlab)
 library(testit)
 library(ggplot2)
@@ -27,8 +25,10 @@ library(cowplot)
 library(reshape2)
 library(png)
 library(grid)
+library(profvis)
 ```
 
+## Variables
 ```{r}
 N=50 # Number of simulated subjects/datasets
 Nn=5 # Number of nodes
@@ -39,7 +39,7 @@ PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series 
 PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is
 ```
 
-## Load data
+## Load simulation time series
 ```{r}
 ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
 ```
@@ -62,7 +62,7 @@ ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$g
 load(file.path(PATH, 'results', 'DGM-Step.RData'))
 ```
 
-# Compare stepwise
+## Compare stepwise
 ```{r}
 g.ex = dgm.group(ex)
 g.fw = dgm.group(fw)
@@ -78,3 +78,90 @@ print(prc)
 ```
 
 Stepwise both forward and backward combined is best and almost identical to exhaustive search.
+
+## Load ICA fMRI time seires
+```{r}
+load(file.path(PATH, 'results', 'RSN10-ts.RData'))
+```
+
+## Profiling
+```{r}
+# X = ts[,,1,1]
+# n = 8
+
+# Rprof(tmp <- tempfile())
+# fw = stepwise.forward(X, n)
+# # bw = stepwise.backward(X, n)
+# # ex = exhaustive.search(X, n)
+# Rprof(NULL)
+# summaryRprof(tmp)
+# unlink(tmp)
+```
+
+## More profiling
+```{r}
+# X = ts[,,1,1]
+# n = 8
+#
+# d = tempdir()
+# 
+# Rprof(tmp1 <- tempfile())
+# m=node(X, n, id="test", path = d, method = "exhaustive")
+# Rprof(NULL)
+# 
+# Rprof(tmp2 <- tempfile())
+# m=node(X, n, id="test", path = d, method = "forward")
+# Rprof(NULL)
+# 
+# Rprof(tmp3 <- tempfile())
+# m=node(X, n, id="test", path = d, method = "backward")
+# Rprof(NULL)
+# 
+# Rprof(tmp4 <- tempfile())
+# m=node(X, n, id="test", path = d, method = "both")
+# Rprof(NULL)
+# 
+# summaryRprof(tmp1)
+```
+
+## 10 node RSN networks
+### Loading network data
+```{r}
+# subj_r1 = vector(mode = "list", length = N)
+# subj_r2 = vector(mode = "list", length = N)
+# subj_r3 = vector(mode = "list", length = N)
+# subj_r4 = vector(mode = "list", length = N)
+# 
+# for (s in 1:N) {
+#   subj_r1[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 1), Nn)
+#   subj_r2[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 2), Nn)
+#   subj_r3[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 3), Nn)
+#   subj_r4[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 4), Nn)
+#   print(sprintf("Subject %03d loaded",s))
+# }
+# 
+# dgm.net10.bo.r1 = dgm.group(subj_r1)
+# dgm.net10.bo.r2 = dgm.group(subj_r2)
+# dgm.net10.bo.r3 = dgm.group(subj_r3)
+# dgm.net10.bo.r4 = dgm.group(subj_r4)
+# 
+# f=file(file.path(PATH,"results", "DGM-RSN10_bo.RData"))
+# save(dgm.net10.bo.r1, dgm.net10.bo.r2, dgm.net10.bo.r3, dgm.net10.bo.r4, file = f, compress = T)
+# close(f)
+
+load(file.path(PATH, 'results', 'DGM-RSN10_bo.RData'))
+load(file.path(PATH, 'results', 'DGM-RSN10.RData'))
+```
+
+### Compare stepwise
+```{r}
+N=500
+Nn=10
+prc = array(NA,dim = c(1,4))
+colnames(prc) = c("run 1", "run 2", "run 3", "run 4")
+prc[1] = (sum(dgm.net10.r1$am==dgm.net10.bo.r1$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[2] = (sum(dgm.net10.r2$am==dgm.net10.bo.r2$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[3] = (sum(dgm.net10.r3$am==dgm.net10.bo.r3$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[4] = (sum(dgm.net10.r4$am==dgm.net10.bo.r4$am)-(Nn*N))/(Nn*(Nn-1)*N)
+print(prc)
+```
