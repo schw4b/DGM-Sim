@@ -1,7 +1,7 @@
 ---
 title: "DGM-RSN10"
 author: "Simon Schwab"
-date: "05 Oct 2017"
+date: "17 Oct 2017"
 output: html_notebook
 ---
 
@@ -29,14 +29,15 @@ library(testit)
 ```{r}
 PATH_HOME = "/home/simon"
 PATH_NET  = file.path(PATH_HOME, 'Drive', 'DGM_NetMats10_results')
+PATH_NET_BO=file.path(PATH_HOME, 'Drive', 'DGM_NetMats10_results_stepwise')
 PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
 PATH      = file.path(PATH_HOME, 'Dropbox', 'Data', 'DGM')
 PATH_DATA = file.path(PATH, 'data')
-PATH_DEMOG = file.path(PATH_HOME, 'Drive', 'HCP')
+PATH_DEMOG =file.path(PATH_HOME, 'Drive', 'HCP')
 PATH_FIG  = file.path(PATH, 'figures')
 
 N      = 500
-N_comp = 10 # RSNs
+Nn = 10 # RSNs
 N_t    = 1200 # Volumes
 N_runs = 4
 INFO   = 'NetMats10'
@@ -80,10 +81,10 @@ summary(demog$Age)/N
 # subj_r4 = vector(mode = "list", length = N)
 # 
 # for (s in 1:N) {
-#   subj_r1[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 1), N_comp)
-#   subj_r2[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 2), N_comp)
-#   subj_r3[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 3), N_comp)
-#   subj_r4[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 4), N_comp)
+#   subj_r1[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 1), Nn)
+#   subj_r2[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 2), Nn)
+#   subj_r3[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 3), Nn)
+#   subj_r4[[s]] = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], 4), Nn)
 #   print(sprintf("Subject %03d loaded",s))
 # }
 # 
@@ -159,7 +160,7 @@ summary(colMeans(df.10r4, na.rm = T))
 ```{r}
 # f = list.files(file.path(PATH_TS, "node_timeseries", "3T_HCP820_MSMAll_d25_ts2"), "*.txt")
 # # read data
-# ts = array(NA, dim=c(N_t, N_comp, N_runs, N))
+# ts = array(NA, dim=c(N_t, Nn, N_runs, N))
 # for (s in 1:N) {
 #   d = scaleTs(as.matrix(read.table(file.path(PATH_TS, "node_timeseries", "3T_HCP820_MSMAll_d25_ts2", f[s]))))
 #   assert(nrow(d) == N_t*N_runs)
@@ -244,7 +245,7 @@ idx = 1:round(120/TR) # first 2 minutes
 # random sampling of subject s and nodes n
 nodes = 5 # no. of nodes to plot
 
-d = ts[idx,sample(N_comp,nodes),,sample(N,1)]
+d = ts[idx,sample(Nn,nodes),,sample(N,1)]
 
 p1 = ggplot(melt(d[,1,]), aes(x = Var1, y = value, group=Var2, color=as.factor(Var2))) + 
   geom_line() + theme_minimal() + ggtitle("Run 1")
@@ -277,7 +278,7 @@ x = c(sum(dgm.net10.r1$tam != dgm.net10.r1$am),
       sum(dgm.net10.r4$tam != dgm.net10.r4$am)
 )
 print(x)
-print(x/(N*N_comp*(N_comp-1)))
+print(x/(N*Nn*(Nn-1)))
 
 ```
 
@@ -379,7 +380,42 @@ plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "", "", "B", ""),
 ggsave(path = PATH_FIG, "Fig6.png")
 ```
 
+## Loading network data (stepwise)
+```{r}
+# subj_r1 = vector(mode = "list", length = N)
+# subj_r2 = vector(mode = "list", length = N)
+# subj_r3 = vector(mode = "list", length = N)
+# subj_r4 = vector(mode = "list", length = N)
+# 
+# for (s in 1:N) {
+#   subj_r1[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 1), Nn)
+#   subj_r2[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 2), Nn)
+#   subj_r3[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 3), Nn)
+#   subj_r4[[s]] = read.subject(PATH_NET_BO, sprintf("%s_Run_%03d", SUBJECTS[s], 4), Nn)
+#   print(sprintf("Subject %03d loaded",s))
+# }
+# 
+# dgm.net10.bo.r1 = dgm.group(subj_r1)
+# dgm.net10.bo.r2 = dgm.group(subj_r2)
+# dgm.net10.bo.r3 = dgm.group(subj_r3)
+# dgm.net10.bo.r4 = dgm.group(subj_r4)
+# 
+# f=file(file.path(PATH,"results", "DGM-RSN10_bo.RData"))
+# save(dgm.net10.bo.r1, dgm.net10.bo.r2, dgm.net10.bo.r3, dgm.net10.bo.r4, file = f, compress = T)
+# close(f)
 
+load(file.path(PATH, 'results', 'DGM-RSN10_bo.RData'))
+```
 
+## Compare stepwise
+```{r}
+prc = array(NA,dim = c(1,4))
+colnames(prc) = c("run 1", "run 2", "run 3", "run 4")
+prc[1] = (sum(dgm.net10.r1$am==dgm.net10.bo.r1$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[2] = (sum(dgm.net10.r2$am==dgm.net10.bo.r2$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[3] = (sum(dgm.net10.r3$am==dgm.net10.bo.r3$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc[4] = (sum(dgm.net10.r4$am==dgm.net10.bo.r4$am)-(Nn*N))/(Nn*(Nn-1)*N)
+print(prc)
+```
 
 
