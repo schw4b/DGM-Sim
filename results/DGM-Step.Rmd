@@ -121,6 +121,7 @@ prc10[2] = (sum(dgm.net10.r2$am==dgm.net10.bo.r2$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc10[3] = (sum(dgm.net10.r3$am==dgm.net10.bo.r3$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc10[4] = (sum(dgm.net10.r4$am==dgm.net10.bo.r4$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc10=round(prc10*100, 2)
+print(prc10)
 ```
 
 
