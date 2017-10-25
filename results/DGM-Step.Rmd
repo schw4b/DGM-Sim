@@ -1,7 +1,7 @@
 ---
 title: "DGM-Stepwise"
 author: "Simon Schwab"
-date: "14 Oct 2017"
+date: "25 Oct 2017"
 output: html_notebook
 ---
 
@@ -10,42 +10,40 @@ output: html_notebook
 # install.packages("rmarkdown")
 # install.packages("multdyn")
 # install.packages("R.matlab")
+# install.packages("reshape2")
 # install.packages("cowplot")
 # install.packages("png")
 # install.packages("testit")
 ```
 
 ## Load libraries 
-```{r}
-#library(multdyn)
+```{r message=FALSE}
+library(multdyn)
 library(R.matlab)
 library(testit)
 library(ggplot2)
 library(cowplot)
 library(reshape2)
 library(png)
-library(grid)
-library(profvis)
 ```
 
 ## Variables
 ```{r}
-N=50 # Number of simulated subjects/datasets
-Nn=5 # Number of nodes
 PATH_HOME = "/home/simon"
 PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM")  # Project path
 PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
 PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series data is
 PATH_NET = file.path(PATH, 'data', 'sim', 'nets') # path where network data is
 ```
+## 5-node network simulation
 
-## Load simulation time series
+### Estimate networks
 ```{r}
-ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
-```
+N=50 # Number of simulated subjects/datasets
+Nn=5 # Number of nodes
 
-## Estimate networks
-```{r}
+# ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$gfy2s
+
 # ex = fw = bw = bo = list()
 # for (i in 1:N) {
 #   print(sprintf("Estimating subject %03d", i))
@@ -62,7 +60,7 @@ ts.int1 = readMat(file.path(PATH_TS,'Nn5_TR2_Noise01_HRF1_Mod1_Inj1_F13.mat'))$g
 load(file.path(PATH, 'results', 'DGM-Step.RData'))
 ```
 
-## Compare stepwise
+### Compare stepwise
 ```{r}
 g.ex = dgm.group(ex)
 g.fw = dgm.group(fw)
@@ -74,59 +72,18 @@ colnames(prc) = c("forward", "backward", "both")
 prc[1] = (sum(g.ex$am==g.fw$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc[2] = (sum(g.ex$am==g.bw$am)-(Nn*N))/(Nn*(Nn-1)*N)
 prc[3] = (sum(g.ex$am==g.bo$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc=round(prc*100, 2)
 print(prc)
 ```
 
 Stepwise both forward and backward combined is best and almost identical to exhaustive search.
 
-## Load ICA fMRI time seires
-```{r}
-load(file.path(PATH, 'results', 'RSN10-ts.RData'))
-```
+## 10-node network ICA fMRI
 
-## Profiling
+### Estimating stepwise 10 nodes
 ```{r}
-# X = ts[,,1,1]
-# n = 8
+# load(file.path(PATH, 'results', 'RSN10-ts.RData'))
 
-# Rprof(tmp <- tempfile())
-# fw = stepwise.forward(X, n)
-# # bw = stepwise.backward(X, n)
-# # ex = exhaustive.search(X, n)
-# Rprof(NULL)
-# summaryRprof(tmp)
-# unlink(tmp)
-```
-
-## More profiling
-```{r}
-# X = ts[,,1,1]
-# n = 8
-#
-# d = tempdir()
-# 
-# Rprof(tmp1 <- tempfile())
-# m=node(X, n, id="test", path = d, method = "exhaustive")
-# Rprof(NULL)
-# 
-# Rprof(tmp2 <- tempfile())
-# m=node(X, n, id="test", path = d, method = "forward")
-# Rprof(NULL)
-# 
-# Rprof(tmp3 <- tempfile())
-# m=node(X, n, id="test", path = d, method = "backward")
-# Rprof(NULL)
-# 
-# Rprof(tmp4 <- tempfile())
-# m=node(X, n, id="test", path = d, method = "both")
-# Rprof(NULL)
-# 
-# summaryRprof(tmp1)
-```
-
-## 10 node RSN networks
-### Loading network data
-```{r}
 # subj_r1 = vector(mode = "list", length = N)
 # subj_r2 = vector(mode = "list", length = N)
 # subj_r3 = vector(mode = "list", length = N)
@@ -157,11 +114,36 @@ load(file.path(PATH, 'results', 'DGM-RSN10.RData'))
 ```{r}
 N=500
 Nn=10
-prc = array(NA,dim = c(1,4))
-colnames(prc) = c("run 1", "run 2", "run 3", "run 4")
-prc[1] = (sum(dgm.net10.r1$am==dgm.net10.bo.r1$am)-(Nn*N))/(Nn*(Nn-1)*N)
-prc[2] = (sum(dgm.net10.r2$am==dgm.net10.bo.r2$am)-(Nn*N))/(Nn*(Nn-1)*N)
-prc[3] = (sum(dgm.net10.r3$am==dgm.net10.bo.r3$am)-(Nn*N))/(Nn*(Nn-1)*N)
-prc[4] = (sum(dgm.net10.r4$am==dgm.net10.bo.r4$am)-(Nn*N))/(Nn*(Nn-1)*N)
-print(prc)
+prc10 = array(NA,dim = c(1,4))
+colnames(prc10) = c("run 1", "run 2", "run 3", "run 4")
+prc10[1] = (sum(dgm.net10.r1$am==dgm.net10.bo.r1$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc10[2] = (sum(dgm.net10.r2$am==dgm.net10.bo.r2$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc10[3] = (sum(dgm.net10.r3$am==dgm.net10.bo.r3$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc10[4] = (sum(dgm.net10.r4$am==dgm.net10.bo.r4$am)-(Nn*N))/(Nn*(Nn-1)*N)
+prc10=round(prc10*100, 2)
 ```
+
+
+## Plot
+```{r fig.height=2.5, fig.width=7}
+p1=ggplot(melt(prc), aes(x=Var2, y=value, fill=Var2)) + 
+  geom_bar(stat="identity") +
+  geom_text(aes(label=as.vector(prc)), size=4, vjust=-0.3) +
+  ggtitle("5-node network") + ylim(c(0,105)) + ylab("percent") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.title=element_blank())
+
+p2=ggplot(melt(prc10), aes(x=Var2, y=value, fill=Var2)) + 
+  geom_bar(stat="identity") +
+  geom_text(aes(label=as.vector(prc10)), size=4, vjust=-0.3) +
+  ggtitle("10-node RSNs") + ylim(c(0,105)) + ylab("percent") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.title=element_blank())
+
+plot_grid(p1, p2, ncol=2, rel_widths = c(1, 1))
+```
+
