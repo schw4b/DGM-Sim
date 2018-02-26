@@ -10,7 +10,7 @@ output: html_notebook
 ### Install required packages 
 ```{r}
 # install.packages("rmarkdown")
-# install.packages("multdyn")
+# install.packages("DGM")
 # install.packages("R.matlab")
 # install.packages("cowplot")
 # install.packages("png")
