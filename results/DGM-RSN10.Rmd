@@ -1,7 +1,7 @@
 ---
 title: "DGM-RSN10"
 author: "Simon Schwab"
-date: "17 Oct 2017"
+date: "26 Feb 2018"
 output: html_notebook
 ---
 
@@ -17,7 +17,7 @@ output: html_notebook
 
 ## Load libraries 
 ```{r, message=FALSE}
-library(multdyn)
+library(DGM)
 library(ggplot2)
 library(cowplot)
 library(reshape2)
@@ -31,7 +31,7 @@ PATH_HOME = "/home/simon"
 PATH_NET  = file.path(PATH_HOME, 'Drive', 'DGM_NetMats10_results')
 PATH_NET_BO=file.path(PATH_HOME, 'Drive', 'DGM_NetMats10_results_stepwise')
 PATH_TS   = file.path(PATH_HOME, 'Drive', 'HCP900_Parcellation_Timeseries_Netmats_ICAd25')
-PATH      = file.path(PATH_HOME, 'Dropbox', 'Data', 'DGM')
+PATH      = file.path(PATH_HOME, 'Dropbox', 'Data', 'DGM-Sim')
 PATH_DATA = file.path(PATH, 'data')
 PATH_DEMOG =file.path(PATH_HOME, 'Drive', 'HCP')
 PATH_FIG  = file.path(PATH, 'figures')
@@ -94,7 +94,7 @@ summary(demog$Age)/N
 # dgm.net10.r4 = dgm.group(subj_r4)
 # 
 # # save some space
-# dgm.net10.r1$models = NULL
+# #dgm.net10.r1$models = NULL
 # dgm.net10.r2$models = NULL
 # dgm.net10.r3$models = NULL
 # dgm.net10.r4$models = NULL
@@ -236,6 +236,7 @@ p4 = gplotMat(rmdiag(corTs(ts[,,4,])), title=sprintf("Run 4", N), lim=LIM, nodeL
   xlab("Node") + ylab("Node") + scale_x_continuous(breaks = 0.5:9.5, labels = labels$Label )
 
 plot_grid(p1, p2, p3, p4, ncol = 2, nrow = 2, rel_widths = c(1, 1))
+ggsave(path = PATH_FIG, "R_10RSNs.png")
 ```
 
 ## Plot example timeseries
@@ -283,53 +284,53 @@ print(x/(N*Nn*(Nn-1)))
 ```
 
 
-## Figure 5
-```{r, fig.width=5.8, fig.height=9.8, message=FALSE}
-mylim = c(0, 0.68)
+## Figure 8
+```{r, fig.width=4.5, fig.height=7.8, message=FALSE}
+mylim = c(0.1, 0.68)
 pos = 0.5:9.5
 s = 0.2
-p1 = gplotMat(stats.r1$adj, title = "Run 1", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = mylim) +
+p1 = gplotMat(stats.r1$adj, title = "run 1", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p2 = gplotMat(rmna(stats.r1$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = mylim) +
-  scale_x_continuous(breaks = pos, labels = labels$Label ) +
-  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
-
-p3 = gplotMat(stats.r2$adj, title = "Run 2", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = mylim) +
+p2 = gplotMat(rmna(stats.r1$adj_fdr), title = "binomial test", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p4 = gplotMat(rmna(stats.r2$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = mylim) +
+p3 = gplotMat(stats.r2$adj, title = "run 2", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p5 = gplotMat(stats.r3$adj, title = "Run 3", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = mylim) +
+p4 = gplotMat(rmna(stats.r2$adj_fdr), title = "binomial test", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p6 = gplotMat(rmna(stats.r3$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = mylim) +
+p5 = gplotMat(stats.r3$adj, title = "run 3", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p7 = gplotMat(stats.r4$adj, title = "Run 4", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = mylim) +
+p6 = gplotMat(rmna(stats.r3$adj_fdr), title = "binomial test", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p8 = gplotMat(rmna(stats.r4$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = mylim) +
+p7 = gplotMat(stats.r4$adj, title = "run 4", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
+
+p8 = gplotMat(rmna(stats.r4$adj_fdr), title = "binomial test", titleTextSize = 12, nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = mylim, barWidth = 0.2, textSize = 11) +
   scale_x_continuous(breaks = pos, labels = labels$Label) +
   theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 2, nrow = 4, rel_heights = c(1,1,1,1))
-ggsave(path = PATH_FIG, "Fig5.png")
+ggsave(path = PATH_FIG, "Fig8.png")
 ```
 
 ## Networks consistency across runs
@@ -346,38 +347,128 @@ stats.m4 = binom.nettest(m4, alter = "greater")
 stats.mn = binom.nettest(mn, alter = "greater")
 ```
 
-## Figure 6
-```{r, fig.height=7.8, fig.width=6.2, message=FALSE}
-p1 = gplotMat(stats.m3$adj, title = "edge in 3/4 runs", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = c(0, 0.6)) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+## Figure 9
+```{r, fig.height=6.2, fig.width=4.5, message=FALSE}
 
-p2 = gplotMat(rmna(stats.m3$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = c(0, 0.6)) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+p1 = gplotMat(stats.m3$adj, title = "edge in 3/4 runs", nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = c(0.1, 0.62), barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
+
+p2 = gplotMat(rmna(stats.m3$adj_fdr), title = "binomial test", nodeLabels=labels$Label,
+              axisTextSize=8, xAngle=90, lim = c(0.1, 0.62), barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
 p3 = gplotMat(stats.m4$adj, title = "edge in 4/4 runs", nodeLabels=labels$Label,
-              axisTextSize=9, xAngle=90, lim = c(0, 0.32)) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+              axisTextSize=8, xAngle=90, lim = c(0.1, 0.62), barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p4 = gplotMat(rmna(stats.m4$adj_fdr), title = "binomial test",
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90, lim = c(0,0.32)) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+p4 = gplotMat(rmna(stats.m4$adj_fdr), title = "binomial test", nodeLabels=labels$Label, 
+              axisTextSize=8, xAngle=90, lim = c(0.1,0.62), barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
 p5 = gplotMat(rmdiag(stats.mn$adj), title = "no edge in 4/4 runs", nodeLabels=labels$Label,
-              gradient = c("white", "violet", "blue"),
-              axisTextSize=9, xAngle=90) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+              gradient = c("white", "violet", "blue"), axisTextSize=8, xAngle=90, 
+              barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
-p6 = gplotMat(rmdiag(rmna(stats.mn$adj_fdr)), title = "binomial test",
-              gradient = c("white", "violet", "blue"),
-              nodeLabels=labels$Label, axisTextSize=9, xAngle=90) +
-  scale_x_continuous(breaks = pos, labels = labels$Label)
+p6 = gplotMat(rmdiag(rmna(stats.mn$adj_fdr)), title = "binomial test", nodeLabels=labels$Label,
+              gradient = c("white", "violet", "blue"), axisTextSize=8, xAngle=90,
+              barWidth = 0.2, textSize = 11) +
+  scale_x_continuous(breaks = pos, labels = labels$Label) +
+  theme(plot.margin = unit(c(s, 0, 0, 0), "cm"))
 
 plot_grid(p1, p2, p3, p4, p5, p6, labels=c("A", "", "", "", "B", ""),
           ncol = 2, nrow = 3, rel_heights = c(1,1,1))
 
-ggsave(path = PATH_FIG, "Fig6.png")
+ggsave(path = PATH_FIG, "Fig9.png")
 ```
 
+## Figure connectivity strength
+```{r fig.height=5, fig.width=5}
+# find representative subject showing group effect [DMN VisMed and Aud]->Cereb
+# s=sample(N,1) # subject
+s=35
 
+idx=array(FALSE, dim=c(Nn, Nn))
+idx[2,8] = idx[3,8] = idx[9,8] = TRUE
+#stats.r1$adj_fdr[idx]
+a=dgm.net10.r1$am[,,s]
+a[idx]
+
+r=1 # run
+node=8
+
+# get model space
+sub = read.subject(PATH_NET, sprintf("%s_Run_%03d", SUBJECTS[s], r), Nn)
+df = sub$winner[12,node]
+pars = sub$winner[2:Nn,node]
+pars = pars[pars != 0]
+mypars=c(2,9)
+idxpar=match(mypars,pars)
+
+Nt=nrow(ts)
+
+Ft=array(1,dim=c(Nt,length(pars)+1))
+Ft[,2:ncol(Ft)]=ts[,pars,r,s] # selects parents
+Yt=ts[,node,r,s]
+
+# get df corresponding to parent model pars
+#df = getModel(sub$models[[1]], pars)[Nn+2]
+
+fit=dlm.lpl(Yt, t(Ft), delta = df)
+y = dlm.retro(fit$mt, fit$CSt, fit$RSt, fit$nt, fit$dt)
+
+theta=t(y$smt[2:(length(pars)+1),])
+
+scaleFUN <- function(x) sprintf("%.1f", x)
+start=1
+seconds=500 # max is 864
+idx=round(start/TR):round((start+seconds)/TR)
+Nt_=length(idx)
+
+d=melt(Yt[idx])
+d$time=1:Nt_
+d$labels="Cer  "
+p1 = ggplot(d, aes(x = time*TR, y = value, color=labels)) + geom_line() +
+  theme_minimal() + ggtitle("Node time series (child)") +
+  scale_color_discrete(name = "labels") + xlab("seconds") + ylab("BOLD") + #xlim(c(0,seconds)) +
+  scale_y_continuous(labels=scaleFUN) +
+  theme(axis.text.x = element_text(size=10), axis.text.y = element_text(size=10),
+        axis.title.y = element_text(size=10), legend.text=element_text(size=10),
+        plot.title = element_text(size=10,face="bold"))
+#p1 = p1 + scale_colour_brewer(palette="Dark2")
+
+#d=melt(Ft[idx,2:(length(pars)+1)])
+d=melt(Ft[idx,idxpar+1])
+d$time=1:Nt_
+d$labels=c(rep("DMN", Nt_),rep("Au", Nt_))
+p2 = ggplot(d, aes(x = time*TR, y = value, group=Var2, color=labels)) + geom_line() +
+  theme_minimal() + ggtitle("Node time series (parents)") +
+  scale_color_discrete(name = "labels") + xlab("seconds") + ylab("BOLD") + #xlim(c(0,seconds)) +
+  scale_y_continuous(labels=scaleFUN) +
+  theme(axis.text.x = element_text(size=10), axis.text.y = element_text(size=10),
+        axis.title.y = element_text(size=10), legend.text=element_text(size=10),
+        plot.title = element_text(size=10,face="bold"))
+
+d=melt(theta[idx,idxpar])
+d$time=1:Nt_
+d$labels=c(rep("DMN", Nt_),rep("Au", Nt_))
+p3 = ggplot(d, aes(x = time*TR, y = value, group=Var2, color=labels)) + geom_line() +
+  theme_minimal() + ggtitle("Influence of parents on the child node") +
+  #scale_color_discrete(name = expression(paste(italic(theta^"r=1"), ""[italic("t")]))) +
+  scale_color_discrete(name = "labels") +
+  xlab("seconds") + ylab(expression(theta)) + #xlim(c(0,seconds)) +
+  theme(axis.text.x = element_text(size=10), axis.text.y = element_text(size=10),
+        axis.title.y = element_text(size=10), legend.text=element_text(size=10),
+        plot.title = element_text(size=10,face="bold"))
+
+
+plot_grid(p1, p2, p3, ncol = 1, nrow = 3, rel_widths = c(1,1,1), labels = c("A", "B", "C"))
+
+ggsave(path = PATH_FIG, "Theta_RSN.png")
+```
