@@ -23,12 +23,12 @@ Schwab, S., Harbord, R., Zerbi, V., Elliott, L., Afyouni, S., Smith, J. Q., … 
 * All network data (from simulations, human fMRI and mouse fMRI) can be produced with [`DGM`](https://cran.r-project.org/web/packages/DGM/index.html) or loaded from the `RData` containers in the results folder.
 
 #### Raw time series
-* Simulation time series are in this repository except sim1 and sim22 which can be obtained from the FMRIB [NetSim Website](http://www.fmrib.ox.ac.uk/datasets/netsim/). The Notebook will download these automatically and will extract them.
+* Simulation time series are based in the generative model described in [1] and are in this repository except sim1 and sim22 which can be obtained from the FMRIB [NetSim Website](http://www.fmrib.ox.ac.uk/datasets/netsim/). The Notebook will download these automatically and will extract them.
 * Human RSN time series can be obtained from the Human Connectome Project, Parcellation+Timeseries+Netmats (PTN) from [here](https://db.humanconnectome.org).
 * Mouse time-series is not open and must be requested from [valerio.zerbi@hest.ethz.ch](valerio.zerbi@hest.ethz.ch), but the network data is available.
 
-## Refs
-2. Smith, S. M., Miller, K. L., Salimi-Khorshidi, G., Webster, M., Beckmann, C. F., Nichols, T. E., et al. (2011). Network modelling methods for FMRI. *NeuroImage*, 54(2), 875–91. [doi:10.1016/j.neuroimage.2010.08.063](http://dx.doi.org/10.1016/j.neuroimage.2010.08.063).
+## References
+1. Smith, S. M., Miller, K. L., Salimi-Khorshidi, G., Webster, M., Beckmann, C. F., Nichols, T. E., et al. (2011). Network modelling methods for FMRI. *NeuroImage*, 54(2), 875–91. [doi:10.1016/j.neuroimage.2010.08.063](http://dx.doi.org/10.1016/j.neuroimage.2010.08.063).
 
 ## Additonal Analyses
 - [DGM-Stepwise](https://rawgit.com/schw4b/DGM-Sim/master/results/DGM-Step.nb.html)
