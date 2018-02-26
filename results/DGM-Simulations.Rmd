@@ -1,7 +1,7 @@
 ---
 title: "DGM-Simulations"
 author: "Simon Schwab"
-date: "09 Jan 2018"
+date: "26 Jan 2018"
 output: html_notebook
 ---
 
@@ -19,7 +19,7 @@ output: html_notebook
 
 ### Load libraries 
 ```{r, message=FALSE}
-library(multdyn)
+library(DGM)
 library(R.matlab)
 library(testit)
 library(ggplot2)
@@ -34,7 +34,7 @@ library(grid)
 N=50 # Number of simulated subjects/datasets
 Nn=5 # Number of nodes
 PATH_HOME = "/home/simon"
-PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM")  # Project path
+PATH = file.path(PATH_HOME, "Dropbox", "Data", "DGM-Sim")  # Project path
 PATH_FIG  = file.path(PATH, 'figures') # path where figures will be stored
 PATH_RES  = file.path(PATH, 'results') # path where results will be stored
 PATH_TS = file.path(PATH, 'data', 'sim', 'timeseries') # path where time series data is
@@ -139,12 +139,29 @@ ts.ssint6 = readMat(file.path(PATH_TS, "SingleSpike_Nn5_TR01_Noise01_HRF1_Mod1_I
 ```
 
 ## Generate true network 
-```{r, fig.height=2, fig.width=2}
+```{r, fig.height=2, fig.width=7.2}
 atrue=array(0,dim=c(5,5))
 atrue[1,2] = atrue[2,3] = atrue[3,4] = atrue[4,5] = atrue[1,5] = 1
 btrue = atrue==1
 
-gplotMat(atrue, title = "true network", hasColMap = F)
+example=atrue
+example[2,1]=1
+example[4,5]=0
+example[5,4]=1
+
+
+p1=gplotMat(atrue, title = "true network", hasColMap = F)
+p2=gplotMat(t(atrue), title = "inverse directionality", hasColMap = F)
+p3=gplotMat(t(atrue)+atrue, title = "bidirectional", hasColMap = F)
+p4=gplotMat(example, title = "example", hasColMap = F)
+plot_grid(p1, p2, p3, p4, ncol = 4, nrow = 1)
+
+ggsave(path = PATH_FIG, "trueNetAndVariants.png")
+
+#perf(atrue, atrue)
+#perf(t(atrue), atrue)
+#perf(t(atrue)+atrue, atrue)
+perf(example, atrue)
 ```
 ## Computation benchmarks
 Commented code was run on a execution node Intel Xeon CPU E5-2630 v2 @ 2.60GHz with R 3.4.0
@@ -229,18 +246,25 @@ ggsave(path = PATH_FIG, "Fig1.png")
 
 ## Signal standard deviation
 ```{r}
-SD1 = SD2 =array(NA, dim=c(N,Nn))
+SD_sim22 = SD_int0 = SD_sim1 =array(NA, dim=c(N,Nn))
 for (i in 1:N) {
-  SD1[i,]= apply(ts.sim22[,,i], 2, sd)
-  SD2[i,]= apply(ts.int0[,,i], 2, sd)
+  SD_sim22[i,]= apply(ts.sim22[,,i], 2, sd)
+  SD_int0[i,] = apply(ts.int0[,,i], 2, sd)
+  SD_sim1[i,] = apply(ts.sim1[,,i], 2, sd)
 }
 
-x=t(array(c(colMeans(SD1), colMeans(SD2)), dim=c(5,2)))
+x=t(array(c(colMeans(SD_sim22), colMeans(SD_int0), colMeans(SD_sim1)), dim=c(5,3)))
 colnames(x)=c("node1", "node2", "node3", "node4", "node5")
-rownames(x)=c("Sim22", "int0")
+rownames(x)=c("Sim22", "int0", "Sim1")
 print(x)
 ```
 Signal SD (mean across subjects). Variability decreases from node 1 to node 4 with node 5 having higher variability. Consistant with simulation 22.
+
+### Global mean of SD
+```{r}
+rowMeans(x)
+```
+
 
 ## Pearson's correlations of the nodes 
 ```{r}
@@ -442,10 +466,13 @@ print(table.perf, digits = 2)
 x=array(c(
   sum(perf.dgm$sim22$subj[,1]>=1),
   sum(perf.pat$sim22$subj[,1]>=1),
+  sum(perf.ling$sim22$subj[,1]>=1),
   sum(perf.dgm$sim22$subj[,1]>=0.8),
-  sum(perf.pat$sim22$subj[,1]>=0.8)), dim=c(2,2))/N
+  sum(perf.pat$sim22$subj[,1]>=0.8),
+  sum(perf.ling$sim22$subj[,1]>=0.8)
+  ), dim=c(3,2))/N
 colnames(x)=c("5/5 nodes","4/5 nodes")
-rownames(x)=c("DGM","Patel")
+rownames(x)=c("DGM","Patel", "Lingam")
 print(x)
 ```
 
@@ -459,6 +486,11 @@ summary(stats.dgm.sim22$adj[btrue], na.rm = T)
 # Patel
 rmna(stats.pat.sim22$adj)
 summary(stats.pat.sim22$adj[btrue], na.rm = T)
+
+# Lingam
+rmna(stats.ling.sim22$adj)
+summary(stats.ling.sim22$adj[btrue], na.rm = T)
+
 ```
 Stationary data
 ```{r}
@@ -469,6 +501,10 @@ summary(stats.dgm.sim1$adj[btrue==1], na.rm = T)
 # Patel
 rmna(stats.pat.sim1$adj)
 summary(stats.pat.sim1$adj[btrue==1], na.rm = T)
+
+# Lingam
+rmna(stats.ling.sim1$adj)
+summary(stats.ling.sim1$adj[btrue==1], na.rm = T)
 ```
 
 ## Supplementary Table S1: time to peak
@@ -665,23 +701,25 @@ ggsave(path = PATH_FIG, "Theta.png")
 ```
 
 ## Figure 5: DGM vs. other methods
-```{r, fig.height=7.8, fig.width=7.2}
+```{r, fig.height=7.8, fig.width=5.5}
 
 s = 0.2 # spacing
-pA=ggplot(melt(table.perf[1:3,c(1,5,6,7,9,11)]), aes(x=Var2, y=value, fill=Var1)) +
+pA=ggplot(melt(table.perf[1:3,c(1,5,6,7,11)]), aes(x=Var2, y=value, fill=Var1)) +
   scale_x_discrete(labels=c("DGM_Sim22" = "DGM\ne=20", "DGM_Sim22e26" = "DGM\ne=26",
                             "DGM_Sim22np" = "DGM\ne=0", "Pat_Sim22" = "Patel",
                             "DCM_Sim22" = "spDCM", "Ling_Sim22" = "Ling")) +
   geom_bar(stat="identity", position=position_dodge()) + guides(fill=FALSE) + ylab("Proportion") +
-  theme(axis.title.x=element_blank(), axis.text.x = element_text(size=9)) + 
-  ggtitle("dynamic") + coord_cartesian(ylim=c(0.4,1)) + scale_fill_brewer(palette="Set1")
+  theme(axis.title.x=element_blank(), axis.text.x = element_text(size=10), axis.text.y = element_text(size=9),
+        axis.title.y = element_text(size=10)) + 
+  ggtitle("dynamic nodes") + coord_cartesian(ylim=c(0.4,1)) + scale_fill_brewer(palette="Set1")
 
-pB=ggplot(melt(table.perf[1:3,c(2,8,10,12)]), aes(x=Var2, y=value, fill=Var1)) +
+pB=ggplot(melt(table.perf[1:3,c(2,8,12)]), aes(x=Var2, y=value, fill=Var1)) +
   scale_x_discrete(labels=c("DGM_Sim1" = "DGM\ne=20", "Pat_Sim1" = "Patel",
                             "DCM_Sim1" = "spDCM", "Ling_Sim1" = "Ling")) + 
-  geom_bar(stat="identity", position=position_dodge()) + ylab("Proportion") + ggtitle("stationary") +
+  geom_bar(stat="identity", position=position_dodge()) + ylab("Proportion") + ggtitle("stationary nodes") +
   coord_cartesian(ylim=c(0.4,1)) + guides(fill=guide_legend(title="")) +
-  theme(axis.title.x=element_blank(), axis.text.x = element_text(size=9)) +
+  theme(axis.title.x=element_blank(), axis.text.x = element_text(size=10), axis.text.y = element_text(size=9),
+        axis.title.y = element_text(size=10), legend.text=element_text(size=10)) +
   scale_fill_brewer(palette="Set1")
 
 pTop = plot_grid(pA, pB,  nrow=1, ncol=2, rel_widths = c(0.85, 1), labels = c("A", "B")) +
@@ -689,17 +727,17 @@ pTop = plot_grid(pA, pB,  nrow=1, ncol=2, rel_widths = c(0.85, 1), labels = c("A
 
 pC1 = gplotMat(stats.dgm.sim22$adj, 'DGM', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pC2 = gplotMat(stats.pat.sim22$adj, 'Patel', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
-pC3 = gplotMat(rmdiag(t(stats.DCM.sim22$adj)), "spDCM", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
+#pC3 = gplotMat(rmdiag(t(stats.DCM.sim22$adj)), "spDCM", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pC4 = gplotMat(rmdiag(stats.ling.sim22$adj), "Lingam", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 
 pC5 = gplotMat(stats.dgm.sim22$adj_fdr, 'DGM (FDR)', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pC6 = gplotMat(stats.pat.sim22$adj_fdr, 'Patel (FDR)', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
-pC7 = gplotMat(rmdiag(t(stats.DCM.sim22$adj_fdr)), "spDCM (FDR)", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
+#pC7 = gplotMat(rmdiag(t(stats.DCM.sim22$adj_fdr)), "spDCM (FDR)", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pC8 = gplotMat(rmdiag(stats.ling.sim22$adj_fdr), "Lingam (FDR)", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 
 pD1 = gplotMat(stats.dgm.sim1$adj, 'DGM', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pD2 = gplotMat(stats.pat.sim1$adj, 'Patel', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
-pD3 = gplotMat(rmdiag(t(stats.DCM.sim1$adj)), "spDCM", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
+#pD3 = gplotMat(rmdiag(t(stats.DCM.sim1$adj)), "spDCM", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pD4 = gplotMat(rmdiag(stats.ling.sim1$adj), "Lingam", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 
 pD5 = gplotMat(stats.dgm.sim1$adj_fdr, 'DGM (FDR)', '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
@@ -707,15 +745,15 @@ pD6 = gplotMat(stats.pat.sim1$adj_fdr, 'Patel (FDR)', '%', titleTextSize = 10, a
 pD7 = gplotMat(rmdiag(t(stats.DCM.sim1$adj_fdr)), "spDCM (FDR)", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 pD8 = gplotMat(rmdiag(stats.ling.sim1$adj_fdr), "Lingam (FDR)", '%', titleTextSize = 10, axisTextSize=10, textSize = 10, barWidth = 0.2)
 
-pMid  = plot_grid(pC1, pC2, pC3, pC4, pC5, pC6, pC7, pC8, nrow=2, ncol=4, rel_widths = c(1,1,1,1)) +
+pMid  = plot_grid(pC1, pC2, pC4, pC5, pC6, pC8, nrow=2, ncol=3, rel_widths = c(1,1,1)) +
   theme(plot.margin = unit(c(s, 0, s, 0), "cm"))
 
-pBott = plot_grid(pD1, pD2, pD3, pD4, pD5, pD6, pD7, pD8, nrow=2, ncol=4, rel_widths = c(1,1,1,1)) +
+pBott = plot_grid(pD1, pD2, pD4, pD5, pD6, pD8, nrow=2, ncol=3, rel_widths = c(1,1,1)) +
   theme(plot.margin = unit(c(s, 0, s, 0), "cm"))
 
 plot_grid(pTop, pMid, pBott, ncol = 1, nrow = 3, rel_heights = c(0.55,1,1),
-          labels = c("", "C dynamic", "D stationary"),
-          vjust = 0.6, hjust = -0.1) 
+          labels = c("", "C dynamic nodes", "D stationary nodes"),
+          vjust = 0.6, hjust = -0.1)
 
 ggsave(path = PATH_FIG, "Fig5.png")
 ```
@@ -828,6 +866,11 @@ x = t(apply(dgm.sim22$tam, 3, colSums)) # Subj x no. of parents
 df.22 = dgm.sim22$df_
 df.22[x == 0] = NA
 summary(colMeans(df.22, na.rm = T))
+
+x = t(apply(dgm.sim1$tam, 3, colSums)) # Subj x no. of parents
+df.1 = dgm.sim1$df_
+df.1[x == 0] = NA
+summary(colMeans(df.1, na.rm = T))
 
 x = t(apply(dgm.int0$am, 3, colSums)) # Subj x no. of parents
 df.0 = dgm.int0$df_
@@ -1067,3 +1110,22 @@ z2 = 8507/res # 66% of amplitude z output with 500 ms
 print(z-stim)
 print(z2-stim)
 ```
+
+## Figure: pruning example
+```{r fig.height=1.7, fig.width=6}
+n=10
+s = read.subject(file.path(PATH_NET,'sim22'), sprintf("Id_%03d",n), Nn)
+o0  = pruning(s$adj, s$models, winner = s$winner, e = 0)
+o5  = pruning(s$adj, s$models, winner = s$winner, e = 5)
+o10 = pruning(s$adj, s$models, winner = s$winner, e = 10)
+o20 = pruning(s$adj, s$models, winner = s$winner, e = 20)
+
+p1= gplotMat(o0$am, hasColMap = F, title = "e=0", titleTextSize = 10)
+p2= gplotMat(o5$am, hasColMap = F, title = "e=5", titleTextSize = 10)
+p3= gplotMat(o10$am, hasColMap = F, title = "e=10", titleTextSize = 10)
+p4= gplotMat(o20$am, hasColMap = F, title = "e=20", titleTextSize = 10)
+
+plot_grid(p1, p2, p3, p4, ncol=4, nrow = 1)
+ggsave(path = PATH_FIG, "PruningExample.png")
+```
+
