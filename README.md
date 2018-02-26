@@ -3,7 +3,7 @@
 For questions and collaboration write to [schw4b@gmail.com](schw4b@gmail.com).
 
 ## How to cite this work
-Schwab, S., Harbord, R., Zerbi, V., Elliott, L., Afyouni, S., Smith, J. Q., … Nichols, T. E. (2017, October 5). Directed functional connectivity using dynamic graphical models. *bioRxiv*. [doi:10.1101/198887](https://doi.org/10.1101/198887)
+Schwab, S., Harbord, R., Zerbi, V., Elliott, L., Afyouni, S., Smith, J. Q., … Nichols, T. E. (2017). Directed functional connectivity using dynamic graphical models. *bioRxiv*. [doi:10.1101/198887](https://doi.org/10.1101/198887)
 
 ## Notebooks with results and figures
 - [DGM-Simulations](https://rawgit.com/schw4b/DGM-Sim/master/results/DGM-Simulations.nb.html)
