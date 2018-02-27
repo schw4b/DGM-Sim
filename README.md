@@ -1,6 +1,6 @@
 # DGM simulations and applications with real data
 
-For questions and collaboration write to [schw4b@gmail.com](schw4b@gmail.com).
+For questions about these data and analyses write to [schw4b@gmail.com](schw4b@gmail.com).
 
 ## How to cite this work
 Schwab, S., Harbord, R., Zerbi, V., Elliott, L., Afyouni, S., Smith, J. Q., … Nichols, T. E. (2017). Directed functional connectivity using dynamic graphical models. *bioRxiv*. [doi:10.1101/198887](https://doi.org/10.1101/198887)
